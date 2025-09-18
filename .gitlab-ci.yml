@@ -1,0 +1,31 @@
+image: python:3.11
+
+stages:
+  - test
+  - deploy
+
+variables:
+  PYTHONPYCACHEPREFIX: .cache
+
+test:python:
+  stage: test
+  script:
+    - python -m py_compile server.py
+
+pages:
+  stage: deploy
+  script:
+    - mkdir -p public
+    - cp index.html public/
+    - cp bdd.html public/
+    - cp profil.html public/
+    - cp mentions-legales.html public/
+    - cp politique-confidentialite.html public/
+    - cp conditions-utilisation.html public/
+    - cp -p server.py public/
+  artifacts:
+    paths:
+      - public
+  only:
+    - main
+    - master

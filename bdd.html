@@ -1,0 +1,715 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Base d’argumentaires - Bingo féministe</title>
+  <style>
+    :root {
+      --bg: #4B1F58;
+      --card: #3D144D;
+      --ink: #F3F1F5;
+      --muted: #B799C4;
+      --accent: #F5C621;
+    }
+    body {
+      margin:0;
+      font-family: system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+    }
+    a {
+      color: var(--accent);
+    }
+    a:hover,
+    a:focus {
+      color: #FFE27A;
+    }
+    .site-footer {
+      margin-top: 48px;
+      background: rgba(0,0,0,0.15);
+      border-top: 1px solid #59246D;
+      padding: 32px 16px;
+      color: var(--muted);
+    }
+    .footer-shell {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: grid;
+      gap: 16px 24px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      align-items: start;
+    }
+    .footer-links,
+    .legal-links {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .footer-section-title {
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+    .footer-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .footer-link:hover,
+    .footer-link:focus {
+      color: #FFE27A;
+    }
+    .contact-info {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      color: var(--ink);
+    }
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .contact-item svg {
+      flex-shrink: 0;
+    }
+    .copyright {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    header { text-align:center; padding:24px; }
+    h1 { margin:0; font-size:28px }
+    p { color: var(--muted) }
+    main { max-width:800px; margin:0 auto; padding:20px }
+    form {
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      background: var(--card);
+      padding:16px;
+      border-radius:12px;
+    }
+    input, textarea, button {
+      padding:10px;
+      border-radius:8px;
+      border:1px solid #59246D;
+      background: var(--card);
+      color: var(--ink);
+    }
+    button {
+      cursor:pointer;
+      font-weight:600;
+    }
+    button:hover {
+      border-color: var(--accent);
+    }
+    table {
+      width:100%;
+      border-collapse:collapse;
+      margin-top:20px;
+    }
+    th, td {
+      border:1px solid #59246D;
+      padding:8px;
+      text-align:left;
+      vertical-align:top;
+    }
+    th {
+      background: var(--card);
+    }
+    td {
+      background: rgba(61,20,77,0.8);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Base d’argumentaires</h1>
+    <p>Ajoutez, modifiez ou consultez les explications pour chaque phrase du bingo.</p>
+  </header>
+
+  <main>
+    <form id="argForm">
+      <input type="text" id="phrase" placeholder="Phrase" required />
+      <textarea id="argumentaire" placeholder="Argumentaire détaillé (basé sur études et littérature féministe)" required></textarea>
+      <textarea id="sources" placeholder="Sources (JSON ou une source par ligne : Titre - URL)" rows="4"></textarea>
+      <button type="submit">Enregistrer</button>
+    </form>
+
+    <table id="argTable">
+      <thead>
+        <tr><th>Phrase</th><th>Argumentaire</th><th>Sources</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-shell">
+      <div>
+        <div class="footer-section-title">Profil</div>
+        <div class="footer-links">
+          <a href="profil.html#skills" class="footer-link">Compétences</a>
+          <a href="profil.html#experience" class="footer-link">Expérience</a>
+          <a href="profil.html#projects" class="footer-link">Projets</a>
+          <a href="profil.html#education" class="footer-link">Formation</a>
+          <a href="profil.html#references" class="footer-link">Références</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-section-title">Légal</div>
+        <div class="legal-links">
+          <a href="mentions-legales.html" class="footer-link">Mentions légales</a>
+          <a href="politique-confidentialite.html" class="footer-link">Politique de confidentialité</a>
+          <a href="conditions-utilisation.html" class="footer-link">Conditions d'utilisation</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-section-title">Contact</div>
+        <div class="contact-info">
+          <div class="contact-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z" />
+            </svg>
+            <span>mehdi.guiraud@gmail.com</span>
+          </div>
+          <div class="contact-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.568 17.568 0 0 0 4.168 6.608 17.569 17.569 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.678.678 0 0 0-.58-.122l-2.19.547a1.745 1.745 0 0 1-1.657-.459L5.482 8.062a1.745 1.745 0 0 1-.46-1.657l.548-2.19a.678.678 0 0 0-.122-.58L3.654 1.328zM1.884.511a1.745 1.745 0 0 1 2.612.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.678.678 0 0 0 .178.643l2.457 2.457a.678.678 0 0 0 .644.178l2.189-.547a1.745 1.745 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.634 18.634 0 0 1-7.01-4.42 18.634 18.634 18.634 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877L1.885.511z" />
+            </svg>
+            <span>06 95 92 51 33</span>
+          </div>
+        </div>
+        <div class="copyright">&copy; 2025 Mehdi Guiraud — tech.mehdiguiraud.info</div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const FALLBACK_DATA = [
+      {
+        phrase: "Sois un homme",
+        argumentaire: "Cette injonction repose sur la masculinité hégémonique, restreint l'expression émotionnelle et favorise des comportements à risque.",
+        sources: [
+          {
+            titre: "Masculinities",
+            auteur: "R.W. Connell",
+            url: "https://genderandmasculinities.files.wordpress.com/2017/02/robert-w-connell-masculinities-second-edition-3.pdf"
+          },
+          {
+            titre: "WHO: Challenging harmful masculinities",
+            url: "https://www.who.int/news/item/12-04-2024-challenging-harmful-masculinities-and-engaging-men-and-boys-in-sexual-and-reproductive-health"
+          }
+        ]
+      },
+      {
+        phrase: "Les hommes ne pleurent pas",
+        argumentaire: "Refouler les émotions encourage anxiété et dépression ; les différences ne sont pas biologiques mais culturelles.",
+        sources: [
+          {
+            titre: "Toward the reconstruction of masculinity",
+            auteur: "Levant",
+            url: "https://www.semanticscholar.org/paper/Toward-the-reconstruction-of-masculinity-Levant/bd992654a9ed4ee80c128b2c97ef47da9acc2eb7"
+          }
+        ]
+      },
+      {
+        phrase: "Pas tous les hommes",
+        argumentaire: "Occulte le caractère structurel des violences de genre documenté par l’ONU et l’INSEE.",
+        sources: [
+          {
+            titre: "Man Enough: Donald Trump...",
+            auteur: "Katz",
+            url: "https://www.mediaed.org/why-are-so-many-young-male-voters-gravitating-toward-donald-trump/"
+          }
+        ]
+      },
+      {
+        phrase: "Les féministes détestent les hommes",
+        argumentaire: "Stéréotype infondé ; les féminismes visent l’égalité et incluent les hommes comme alliés.",
+        sources: [
+          {
+            titre: "Backlash: The Undeclared War Against American Women",
+            auteur: "Faludi",
+            url: "https://books.google.com/books/about/Backlash.html?id=GfDa1cdeHT0C"
+          },
+          {
+            titre: "Backlash PDF",
+            url: "https://seminariolecturasfeministas.files.wordpress.com/2012/01/faludi-susan-backlash-the-undeclared-war-against-american-women.pdf"
+          }
+        ]
+      },
+      {
+        phrase: "On ne peut plus rien dire",
+        argumentaire: "Réaction à la remise en cause des privilèges discursifs, pas une atteinte à la liberté d’expression.",
+        sources: [
+          {
+            titre: "Fortunes Of Feminism",
+            auteur: "Nancy Fraser",
+            url: "https://archive.org/details/fortunes-of-feminism-from-state-managed-capitalism-to-neoliberal-crisis-by-nancy-fraser-2013"
+          }
+        ]
+      },
+      {
+        phrase: "C'était pour rire",
+        argumentaire: "L’humour sexiste banalise et entretient les discriminations.",
+        sources: [
+          {
+            titre: "Social consequences of disparagement humor",
+            auteur: "Ford & Ferguson",
+            url: "https://pubmed.ncbi.nlm.nih.gov/15121541/"
+          },
+          {
+            titre: "PDF: Social consequences humor",
+            url: "https://www.academia.edu/72723461/The_social_consequences_of_disparagement_humor_Introduction_and_overview"
+          }
+        ]
+      },
+      {
+        phrase: "Elle l'a cherché",
+        argumentaire: "Mythe du viol, culpabilise la victime, démenti par toutes les enquêtes.",
+        sources: [
+          {
+            titre: "Using social norms to reduce men's rape proclivity",
+            url: "https://kar.kent.ac.uk/26184/1/Bohner%20Pina%20Viki%20Siebler%202010%20PCL%20final-MS.pdf"
+          },
+          {
+            titre: "The moderating role of gender and rape myth acceptance",
+            url: "https://core.ac.uk/download/pdf/15980425.pdf"
+          }
+        ]
+      },
+      {
+        phrase: "Les femmes sont trop émotives",
+        argumentaire: "Aucune base biologique ; c’est une construction sociale.",
+        sources: [
+          {
+            titre: "Delusions of Gender",
+            auteur: "Cordelia Fine",
+            url: "https://www.worldcat.org/title/664669074"
+          },
+          {
+            titre: "The Gendered Brain",
+            auteur: "Gina Rippon",
+            url: "https://www.worldcat.org/title/1037896125"
+          }
+        ]
+      },
+      {
+        phrase: "Les quotas, c'est injuste",
+        argumentaire: "Les quotas corrigent les inégalités et améliorent la représentation.",
+        sources: [
+          {
+            titre: "Feminist Trouble: Intersectional Politics",
+            auteur: "Lépinard",
+            url: "https://www.worldcat.org/title/1119478787"
+          },
+          {
+            titre: "Women, Politics, and Power",
+            auteur: "Paxton & Hughes",
+            url: "https://www.worldcat.org/title/861693778"
+          }
+        ]
+      },
+      {
+        phrase: "La galanterie prouve le respect",
+        argumentaire: "C’est du sexisme bienveillant qui maintient la domination sous couvert de protection.",
+        sources: [
+          {
+            titre: "The Ambivalent Sexism Inventory",
+            auteur: "Glick & Fiske",
+            url: "https://www.researchgate.net/publication/14295473_The_Ambivalent_Sexism_Inventory"
+          }
+        ]
+      },
+      {
+        phrase: "La drague lourde, c'est normal",
+        argumentaire: "La drague lourde est une forme de harcèlement ; elle nie le consentement.",
+        sources: [
+          {
+            titre: "Surviving Sexual Violence",
+            auteur: "Kelly",
+            url: "https://www.worldcat.org/title/12865167"
+          },
+          {
+            titre: "La construction du masculin",
+            auteur: "Welzer-Lang",
+            url: "https://www.worldcat.org/title/798875797"
+          }
+        ]
+      },
+      {
+        phrase: "Les mères sont faites pour ça",
+        argumentaire: "La maternité est une construction sociale non un instinct.",
+        sources: [
+          {
+            titre: "L’amour en plus",
+            auteur: "Badinter",
+            url: "https://www.worldcat.org/title/70236147"
+          },
+          {
+            titre: "La femme seule et le prince charmant",
+            auteur: "Kaufmann",
+            url: "https://www.worldcat.org/title/40987290"
+          }
+        ]
+      },
+      {
+        phrase: "Le viol, c'est rare",
+        argumentaire: "Les chiffres montrent que c’est un phénomène massif et sous-déclaré.",
+        sources: [
+          {
+            titre: "ENVEFF",
+            url: "https://www.ined.fr/fr/tout-savoir-population/chiffres/france/enveff-violences-femmes/"
+          },
+          {
+            titre: "Virage INED",
+            url: "https://www.ined.fr/fr/recherche/recherche-multi-thematique/enquete-virage/"
+          }
+        ]
+      },
+      {
+        phrase: "La charge mentale n'existe pas",
+        argumentaire: "Le concept existe, théorisé et vérifié par enquêtes INSEE.",
+        sources: [
+          {
+            titre: "Haicault. La gestion ordinaire de la vie en deux",
+            url: "https://www.worldcat.org/title/759608026"
+          },
+          {
+            titre: "INSEE Emploi du temps",
+            url: "https://www.insee.fr/fr/statistiques/4797750"
+          }
+        ]
+      },
+      {
+        phrase: "Les féminicides, mot militant",
+        argumentaire: "Reconnu internationalement et dans les politiques publiques.",
+        sources: [
+          {
+            titre: "ONU Handbook on Violence against Women",
+            url: "https://www.unwomen.org/en/digital-library/publications/2009/07/handbook-for-legislation-on-violence-against-women"
+          },
+          {
+            titre: "Ministère Intérieur étude féminicides",
+            url: "https://www.interieur.gouv.fr/actualites/communiques/feminicides-les-chiffres-cles"
+          }
+        ]
+      },
+      {
+        phrase: "On a déjà l'égalité",
+        argumentaire: "Les rapports internationaux montrent de nombreux écarts persistants.",
+        sources: [
+          {
+            titre: "Global Gender Gap Report 2022",
+            url: "https://www.weforum.org/reports/global-gender-gap-report-2022"
+          },
+          {
+            titre: "INSEE Inégalités femmes-hommes",
+            url: "https://www.insee.fr/fr/statistiques/2662545"
+          }
+        ]
+      },
+      {
+        phrase: "Les femmes conduisent mal",
+        argumentaire: "Les données montrent que les hommes causent la majorité des accidents mortels.",
+        sources: [
+          {
+            titre: "ONISR 2021 sécurité routière",
+            url: "https://www.onisr.securite-routiere.gouv.fr/sites/default/files/2022-06/Bilan-consolid%C3%A9-accidentalit%C3%A9-2021-def.pdf"
+          }
+        ]
+      },
+      {
+        phrase: "Garçon manqué",
+        argumentaire: "Ce terme sanctionne l’écart au genre ; la spécialisation des rôles est sociale, non naturelle.",
+        sources: [
+          {
+            titre: "Duru-Bellat, division sexuée des filières",
+            url: "https://hal.science/hal-01469347/document"
+          }
+        ]
+      },
+      {
+        phrase: "Elle exagère",
+        argumentaire: "Minimiser ou accuser d’exagération est du gaslighting ; la tendance générale est à la sous-déclaration.",
+        sources: [
+          {
+            titre: "Turning up the lights on gaslighting",
+            auteur: "Abramson",
+            url: "https://philarchive.org/archive/ABRTUT"
+          }
+        ]
+      },
+      {
+        phrase: "Friendzone",
+        argumentaire: "Concept qui crée une dette sexuelle imaginaire ; favorise l’objectification.",
+        sources: [
+          {
+            titre: "Sexual economics",
+            auteur: "Baumeister & Vohs",
+            url: "https://www.researchgate.net/publication/51963329_Sexual_Economics_A_Comparison_of_Sex_Money_and"
+          }
+        ]
+      },
+      {
+        phrase: "Si elle dit non, c'est oui",
+        argumentaire: "Mythe rigoureusement déconstruit : seul le consentement explicite compte.",
+        sources: [
+          {
+            titre: "Using social norms to reduce men's rape proclivity",
+            url: "https://kar.kent.ac.uk/26184/1/Bohner%20Pina%20Viki%20Siebler%202010%20PCL%20final-MS.pdf"
+          }
+        ]
+      },
+      {
+        phrase: "Le harcèlement, c'est subjectif",
+        argumentaire: "Définition juridique et médicale objective ; effet prouvé sur la santé.",
+        sources: [
+          {
+            titre: "Einarsen, Harassment at Work",
+            url: "https://www.cambridge.org/core/books/harassment-bullying-and-violence-at-work/E17FE178073D689B7D6637FF9B747E3A"
+          }
+        ]
+      },
+      {
+        phrase: "Les règles, ce n'est pas un sujet",
+        argumentaire: "La menstruation est un enjeu de santé, l’occultation aggrave les inégalités.",
+        sources: [
+          {
+            titre: "UNESCO: Menstrual Health & School",
+            url: "https://unesdoc.unesco.org/ark:/48223/pf0000233576"
+          }
+        ]
+      },
+      {
+        phrase: "C'est un compliment",
+        argumentaire: "Commentaires non désirés réduisent à l’apparence et sont vécus comme oppressifs.",
+        sources: [
+          {
+            titre: "Street harassment article",
+            auteur: "Bowman",
+            url: "https://scholarship.law.cornell.edu/cgi/viewcontent.cgi?article=1394&context=clr"
+          }
+        ]
+      },
+      {
+        phrase: "Le consentement tue la séduction",
+        argumentaire: "Le consentement explicite renforce le respect mutuel et la qualité de la séduction.",
+        sources: [
+          {
+            titre: "College students and sexual consent",
+            auteur: "Jozkowski & Peterson",
+            url: "https://www.tandfonline.com/doi/full/10.1080/00224499.2013.772872"
+          }
+        ]
+      },
+      {
+        phrase: "La parité baisse le niveau",
+        argumentaire: "La parité améliore la performance des groupes et entreprises.",
+        sources: [
+          {
+            titre: "Women Matter McKinsey",
+            url: "https://www.mckinsey.com/featured-insights/diversity-and-inclusion/women-matter"
+          }
+        ]
+      },
+      {
+        phrase: "Nature masculine violente",
+        argumentaire: "Aucune preuve biologique ; la violence est contextuelle.",
+        sources: [
+          {
+            titre: "Masculinities",
+            auteur: "Connell",
+            url: "https://genderandmasculinities.files.wordpress.com/2017/02/robert-w-connell-masculinities-second-edition-3.pdf"
+          },
+          {
+            titre: "Sex differences in aggression",
+            auteur: "Archer",
+            url: "https://www.researchgate.net/publication/26646340_Does_sexual_selection_explain_human_sex_differences_in_aggression"
+          }
+        ]
+      },
+      {
+        phrase: "C'est la biologie",
+        argumentaire: "La plasticité cérébrale et le contexte social expliquent les différences.",
+        sources: [
+          {
+            titre: "Delusions of Gender",
+            auteur: "Fine",
+            url: "https://www.worldcat.org/title/664669074"
+          },
+          {
+            titre: "Gendered Brain",
+            auteur: "Rippon",
+            url: "https://www.worldcat.org/title/1037896125"
+          }
+        ]
+      },
+      {
+        phrase: "Elle ment pour nuire",
+        argumentaire: "Les fausses accusations sont rares, bien moins nombreuses que les cas non déclarés.",
+        sources: [
+          {
+            titre: "ONS false allegations stats",
+            url: "https://www.ons.gov.uk/peoplepopulationandcommunity/crimeandjustice/articles/sexualoffendingvictimsandthecriminaljusticesystem/november2020"
+          },
+          {
+            titre: "INED Violences et rapports de genre",
+            url: "https://www.ined.fr/fr/recherche/recherche-multi-thematique/enquete-virage/"
+          }
+        ]
+      }
+    ];
+
+    let db = new Map(
+      FALLBACK_DATA.map(item => [item.phrase, { argumentaire: item.argumentaire, sources: item.sources || [] }])
+    );
+
+    const form = document.getElementById('argForm');
+    const tableBody = document.querySelector('#argTable tbody');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const sourcesInput = document.getElementById('sources');
+
+    async function loadData() {
+      try {
+        const res = await fetch('/api/argumentaires');
+        if (!res.ok) throw new Error(`Statut ${res.status}`);
+        const items = await res.json();
+        if (!Array.isArray(items)) throw new Error('Format inattendu');
+        const cleanItems = items.filter(item => item && item.phrase);
+        if (cleanItems.length) {
+          db = new Map(
+            cleanItems.map(item => [
+              item.phrase,
+              {
+                argumentaire: item.argumentaire,
+                sources: Array.isArray(item.sources) ? item.sources : []
+              }
+            ])
+          );
+          renderTable();
+          return;
+        }
+      } catch (err) {
+        console.warn('Impossible de lire la base SQLite, chargement des données intégrées.', err);
+      }
+      db = new Map(
+        FALLBACK_DATA.map(item => [item.phrase, { argumentaire: item.argumentaire, sources: item.sources || [] }])
+      );
+      renderTable();
+    }
+
+    function renderTable() {
+      tableBody.innerHTML = '';
+      const rows = Array.from(db.entries()).sort((a, b) => a[0].localeCompare(b[0], 'fr'));
+      for (const [phrase, data] of rows) {
+        const tr = document.createElement('tr');
+
+        const tdPhrase = document.createElement('td');
+        tdPhrase.textContent = phrase;
+        tr.appendChild(tdPhrase);
+
+        const tdArg = document.createElement('td');
+        tdArg.textContent = data.argumentaire;
+        tr.appendChild(tdArg);
+
+        const tdSources = document.createElement('td');
+        if (data.sources && data.sources.length) {
+          const list = document.createElement('ul');
+          data.sources.forEach(src => {
+            const li = document.createElement('li');
+            const titre = src.titre || 'Source';
+            const auteur = src.auteur ? ` (${src.auteur})` : '';
+            if (src.url) {
+              const link = document.createElement('a');
+              link.href = src.url;
+              link.target = '_blank';
+              link.rel = 'noopener';
+              link.textContent = titre;
+              li.appendChild(link);
+            } else {
+              li.textContent = titre;
+            }
+            if (auteur) {
+              li.appendChild(document.createTextNode(auteur));
+            }
+            list.appendChild(li);
+          });
+          tdSources.appendChild(list);
+        } else {
+          tdSources.textContent = '—';
+        }
+        tr.appendChild(tdSources);
+
+        tableBody.appendChild(tr);
+      }
+    }
+
+    function parseSources(raw) {
+      const text = raw.trim();
+      if (!text) return [];
+      try {
+        const parsed = JSON.parse(text);
+        if (Array.isArray(parsed)) {
+          return parsed
+            .filter(entry => entry && (entry.titre || entry.url))
+            .map(entry => ({
+              ...(entry.titre ? { titre: entry.titre } : {}),
+              ...(entry.auteur ? { auteur: entry.auteur } : {}),
+              ...(entry.url ? { url: entry.url } : {})
+            }));
+        }
+      } catch (err) {
+        // contenu non JSON, on tente le format ligne par ligne
+      }
+      return text.split(/\n+/)
+        .map(line => line.trim())
+        .filter(Boolean)
+        .map(line => {
+          const parts = line.split(/\s*(?:-|\|)\s*/, 2);
+          const titre = parts[0];
+          const url = parts[1];
+          const entry = {};
+          if (titre) entry.titre = titre;
+          if (url) entry.url = url;
+          return entry;
+        })
+        .filter(entry => entry.titre || entry.url);
+    }
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const phrase = document.getElementById('phrase').value.trim();
+      const arg = document.getElementById('argumentaire').value.trim();
+      if (!phrase || !arg) return;
+
+      const sources = parseSources(sourcesInput.value || '');
+
+      submitBtn.disabled = true;
+      try {
+        const res = await fetch('/api/argumentaires', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phrase, argumentaire: arg, sources })
+        });
+        if (!res.ok) {
+          const detail = await res.text();
+          throw new Error(detail || `Erreur ${res.status}`);
+        }
+        db.set(phrase, { argumentaire: arg, sources });
+        form.reset();
+        renderTable();
+      } catch (err) {
+        console.error('Sauvegarde impossible', err);
+        alert("Impossible d'enregistrer dans la base. Voir la console pour les détails.");
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+
+    loadData();
+  </script>
+</body>
+</html>

@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Profil - Mehdi Guiraud</title>
+  <style>
+    :root {
+      --bg: #4B1F58;
+      --card: #3D144D;
+      --ink: #F3F1F5;
+      --muted: #B799C4;
+      --accent: #F5C621;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      background: radial-gradient(1200px 800px at 50% -10%, #3D144D, #4B1F58) fixed;
+      color: var(--ink);
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    a:hover,
+    a:focus {
+      color: #FFE27A;
+    }
+    header {
+      padding: 48px 24px 24px;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: clamp(28px, 5vw, 44px);
+    }
+    header p {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 18px;
+    }
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin: 0 16px 32px;
+    }
+    nav a {
+      padding: 10px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 999px;
+      background: rgba(61, 20, 77, 0.6);
+    }
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 24px 48px;
+      display: grid;
+      gap: 32px;
+    }
+    section {
+      background: rgba(61, 20, 77, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+      padding: 28px;
+      box-shadow: 0 18px 35px rgba(0, 0, 0, 0.25);
+    }
+    section h2 {
+      margin: 0 0 16px;
+      font-size: 24px;
+    }
+    ul {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+      color: var(--muted);
+    }
+    .experience-item,
+    .project-item,
+    .education-item,
+    .reference-item {
+      margin-bottom: 16px;
+    }
+    .experience-title,
+    .project-title,
+    .education-title,
+    .reference-title {
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .meta {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .reference-link {
+      display: inline-block;
+      margin-top: 4px;
+    }
+    .site-footer {
+      margin-top: 48px;
+      background: rgba(0,0,0,0.15);
+      border-top: 1px solid #59246D;
+      padding: 32px 16px;
+      color: var(--muted);
+    }
+    .footer-shell {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: grid;
+      gap: 16px 24px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      align-items: start;
+    }
+    .footer-links,
+    .legal-links {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .footer-section-title {
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+    .footer-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .footer-link:hover,
+    .footer-link:focus {
+      color: #FFE27A;
+    }
+    .contact-info {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      color: var(--ink);
+    }
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .contact-item svg { flex-shrink: 0; }
+    .copyright {
+      color: var(--muted);
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Mehdi Guiraud</h1>
+    <p>Développeur full-stack & facilitateur pédagogique — création d’outils numériques engagés.</p>
+  </header>
+
+  <nav>
+    <a href="#skills">Compétences</a>
+    <a href="#experience">Expérience</a>
+    <a href="#projects">Projets</a>
+    <a href="#education">Formation</a>
+    <a href="#references">Références</a>
+  </nav>
+
+  <main>
+    <section id="skills">
+      <h2>Compétences</h2>
+      <ul>
+        <li>Architecture d’applications web JavaScript/TypeScript, Python et Node.js</li>
+        <li>Conception d’outils data et visualisations pédagogiques accessibles</li>
+        <li>Intégration continue (GitLab CI, GitHub Actions) & delivery automatisé</li>
+        <li>Facilitation de workshops autour du numérique responsable & inclusion</li>
+        <li>Gestion de projet agile, priorisation produit et animation de communautés</li>
+      </ul>
+    </section>
+
+    <section id="experience">
+      <h2>Expérience</h2>
+      <div class="experience-item">
+        <div class="experience-title">Plateforme Place de l’Info — Responsable produit & tech lead</div>
+        <div class="meta">2022 – aujourd’hui · Paris / Remote</div>
+        <p>Développement d’outils d’éducation populaire et d’analyse médiatique, encadrement d’une équipe pluridisciplinaire, mise en place d’une infrastructure cloud éthique.</p>
+      </div>
+      <div class="experience-item">
+        <div class="experience-title">Freelance — Consultant en innovation numérique</div>
+        <div class="meta">2017 – 2022 · Clients publics & associations</div>
+        <p>Accompagnement à la transformation digitale, prototypage rapide d’applications, formation de publics variés aux usages numériques.</p>
+      </div>
+    </section>
+
+    <section id="projects">
+      <h2>Projets</h2>
+      <div class="project-item">
+        <div class="project-title">Bingo de la masculinité</div>
+        <div class="meta">Application web pédagogique</div>
+        <p>Outil interactif visant à sensibiliser aux stéréotypes de genre via une base d’argumentaires sourcés et un générateur de grilles.</p>
+      </div>
+      <div class="project-item">
+        <div class="project-title">Observatoire Tech & Médias</div>
+        <div class="meta">Dashboard d’analyse de données</div>
+        <p>Veille en temps réel de discours médiatiques, scoring automatique, distribution de newsletters thématiques.</p>
+      </div>
+    </section>
+
+    <section id="education">
+      <h2>Formation</h2>
+      <div class="education-item">
+        <div class="education-title">Master Informatique — Université de Montpellier</div>
+        <div class="meta">Spécialité systèmes d’information & innovation</div>
+      </div>
+      <div class="education-item">
+        <div class="education-title">Certification UX Design centré utilisateur</div>
+        <div class="meta">ENSAD · 2020</div>
+      </div>
+    </section>
+
+    <section id="references">
+      <h2>Références</h2>
+      <div class="reference-item">
+        <div class="reference-title">Claire Dupont — Directrice de programme, ONG Égalité</div>
+        <div class="meta">claire.dupont@egalite.org · +33 1 40 00 00 00</div>
+        <a class="reference-link" href="mailto:claire.dupont@egalite.org">Écrire à Claire Dupont</a>
+      </div>
+      <div class="reference-item">
+        <div class="reference-title">Théo Martin — CTO, InnovEdu</div>
+        <div class="meta">theo.martin@innovedu.fr · +33 6 12 34 56 78</div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-shell">
+      <div>
+        <div class="footer-section-title">Profil</div>
+        <div class="footer-links">
+          <a href="#skills" class="footer-link">Compétences</a>
+          <a href="#experience" class="footer-link">Expérience</a>
+          <a href="#projects" class="footer-link">Projets</a>
+          <a href="#education" class="footer-link">Formation</a>
+          <a href="#references" class="footer-link">Références</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-section-title">Légal</div>
+        <div class="legal-links">
+          <a href="mentions-legales.html" class="footer-link">Mentions légales</a>
+          <a href="politique-confidentialite.html" class="footer-link">Politique de confidentialité</a>
+          <a href="conditions-utilisation.html" class="footer-link">Conditions d'utilisation</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-section-title">Contact</div>
+        <div class="contact-info">
+          <div class="contact-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z" />
+            </svg>
+            <span>mehdi.guiraud@gmail.com</span>
+          </div>
+          <div class="contact-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.568 17.568 0 0 0 4.168 6.608 17.569 17.569 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.678.678 0 0 0-.58-.122l-2.19.547a1.745 1.745 0 0 1-1.657-.459L5.482 8.062a1.745 1.745 0 0 1-.46-1.657l.548-2.19a.678.678 0 0 0-.122-.58L3.654 1.328zM1.884.511a1.745 1.745 0 0 1 2.612.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.678.678 0 0 0 .178.643l2.457 2.457a.678.678 0 0 0 .644.178l2.189-.547a1.745 1.745 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.634 18.634 18.634 0 0 1-7.01-4.42 18.634 18.634 18.634 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877L1.885.511z" />
+            </svg>
+            <span>06 95 92 51 33</span>
+          </div>
+        </div>
+        <div class="copyright">&copy; 2025 Mehdi Guiraud — tech.mehdiguiraud.info</div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
