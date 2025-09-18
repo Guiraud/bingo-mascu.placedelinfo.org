@@ -1,0 +1,16 @@
+# Python caches and virtual envs
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+.venv/
+.env
+
+# Project-specific caches and db
+.cache/
+argumentaires.db
+
+# OS files
+.DS_Store

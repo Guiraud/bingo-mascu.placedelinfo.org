@@ -11,21 +11,17 @@ test:python:
   stage: test
   script:
     - python -m py_compile server.py
+  only:
+    - dev
 
 pages:
   stage: deploy
   script:
+    - rm -rf public
     - mkdir -p public
-    - cp index.html public/
-    - cp bdd.html public/
-    - cp profil.html public/
-    - cp mentions-legales.html public/
-    - cp politique-confidentialite.html public/
-    - cp conditions-utilisation.html public/
-    - cp -p server.py public/
+    - find . -maxdepth 1 ! -name '.' ! -name 'public' ! -name '.git' ! -name '.gitlab-ci.yml' -exec cp -r {} public/ \;
   artifacts:
     paths:
       - public
   only:
-    - main
-    - master
+    - dev
