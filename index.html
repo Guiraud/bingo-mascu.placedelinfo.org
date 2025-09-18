@@ -27,6 +27,31 @@
     a:focus {
       color: #FFE27A;
     }
+    .main-nav {
+      display:flex;
+      justify-content:center;
+      flex-wrap:wrap;
+      gap:12px;
+      margin:16px auto 24px;
+      padding:0 16px;
+    }
+    .main-nav a {
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:8px 16px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.2);
+      background: rgba(61,20,77,0.6);
+      color: var(--ink);
+      text-decoration:none;
+      font-weight:600;
+    }
+    .main-nav a:hover,
+    .main-nav a:focus {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
     header { text-align:center; padding: 24px 16px }
     h1 { margin:0; font-size: clamp(22px, 3.5vw, 36px) }
     p.lead { margin:.5rem 0 0; color: var(--muted) }
@@ -171,6 +196,14 @@
   <header>
     <h1>Bingo féministe</h1>
     <p class="lead">Au chargement, la grille se génère avec des phrases de masculinité en ordre aléatoire. Cliquez pour cocher. Bingo auto.</p>
+    <nav class="main-nav" aria-label="Navigation principale">
+      <a href="index.html">Accueil</a>
+      <a href="bdd.html">Base d'argumentaires</a>
+      <a href="profil.html">Profil</a>
+      <a href="mentions-legales.html">Mentions légales</a>
+      <a href="politique-confidentialite.html">Politique de confidentialité</a>
+      <a href="conditions-utilisation.html">Conditions d'utilisation</a>
+    </nav>
     <div class="toolbar" role="toolbar" aria-label="Outils">
       <button id="new">Nouvelle grille</button>
       <button id="clear">Tout décocher</button>

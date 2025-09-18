@@ -25,6 +25,31 @@
     a:focus {
       color: #FFE27A;
     }
+    .main-nav {
+      display:flex;
+      justify-content:center;
+      flex-wrap:wrap;
+      gap:12px;
+      margin:16px auto 24px;
+      padding:0 16px;
+    }
+    .main-nav a {
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:8px 16px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.2);
+      background: rgba(61,20,77,0.6);
+      color: var(--ink);
+      text-decoration:none;
+      font-weight:600;
+    }
+    .main-nav a:hover,
+    .main-nav a:focus {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
     .site-footer {
       margin-top: 48px;
       background: rgba(0,0,0,0.15);
@@ -127,6 +152,14 @@
   <header>
     <h1>Base d’argumentaires</h1>
     <p>Ajoutez, modifiez ou consultez les explications pour chaque phrase du bingo.</p>
+    <nav class="main-nav" aria-label="Navigation principale">
+      <a href="index.html">Accueil</a>
+      <a href="bdd.html">Base d'argumentaires</a>
+      <a href="profil.html">Profil</a>
+      <a href="mentions-legales.html">Mentions légales</a>
+      <a href="politique-confidentialite.html">Politique de confidentialité</a>
+      <a href="conditions-utilisation.html">Conditions d'utilisation</a>
+    </nav>
   </header>
 
   <main>
