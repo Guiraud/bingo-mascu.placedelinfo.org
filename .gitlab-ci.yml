@@ -10,7 +10,8 @@ variables:
 test:python:
   stage: test
   script:
-    - python -m py_compile server.py
+    - python3 -m py_compile server.py
+    - python3 ci_test_api.py
   only:
     - dev
 
