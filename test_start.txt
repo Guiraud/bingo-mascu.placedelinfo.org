@@ -1,0 +1,3 @@
+ 1. Lancer python3 server.py, ajouter un argument via l’UI puis vérifier qu’il est bien écrit dans
+  argumentaires.json.
+  2. curl http://localhost:8000/api/argumentaires p

@@ -9,10 +9,13 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 from socketserver import ThreadingMixIn
 from urllib.parse import urlparse
+from threading import Lock
 
 
 BASE_DIR = Path(__file__).resolve().parent
-DB_PATH = BASE_DIR / "argumentaires.db"
+LEGACY_DB_PATH = BASE_DIR / "argumentaires.db"
+JSON_DB_PATH = BASE_DIR / "argumentaires.json"
+DB_LOCK = Lock()
 
 INITIAL_ARGUMENTAIRES = [
     {
@@ -391,70 +394,142 @@ INITIAL_ARGUMENTAIRES = [
 ]
 
 
-def init_db() -> None:
-    conn = sqlite3.connect(DB_PATH)
-    try:
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS argumentaires (
-                phrase TEXT PRIMARY KEY,
-                argumentaire TEXT NOT NULL,
-                sources TEXT NOT NULL DEFAULT '[]'
-            )
-            """
-        )
-        columns = {
-            row[1]
-            for row in conn.execute("PRAGMA table_info(argumentaires)")
-        }
-        if "sources" not in columns:
-            conn.execute(
-                "ALTER TABLE argumentaires ADD COLUMN sources TEXT NOT NULL DEFAULT '[]'"
-            )
+def _sanitize_source(entry: dict[str, str]) -> dict[str, str] | None:
+    titre = (entry.get("titre") or "").strip()
+    auteur = (entry.get("auteur") or "").strip()
+    url = (entry.get("url") or "").strip()
+    if not titre and not url:
+        return None
+    result: dict[str, str] = {}
+    if titre:
+        result["titre"] = titre
+    if auteur:
+        result["auteur"] = auteur
+    if url:
+        result["url"] = url
+    return result
 
-        for item in INITIAL_ARGUMENTAIRES:
-            conn.execute(
-                """
-                INSERT INTO argumentaires (phrase, argumentaire, sources)
-                VALUES (?, ?, ?)
-                ON CONFLICT(phrase) DO UPDATE SET
-                    argumentaire = excluded.argumentaire,
-                    sources = excluded.sources
-                """,
-                (
-                    item["phrase"],
-                    item["argumentaire"],
-                    json.dumps(item.get("sources", []), ensure_ascii=False),
-                ),
-            )
-        conn.commit()
+
+def _sanitize_item(item: dict[str, object]) -> dict[str, object] | None:
+    phrase = (str(item.get("phrase", ""))).strip()
+    argumentaire = (str(item.get("argumentaire", ""))).strip()
+    if not phrase or not argumentaire:
+        return None
+
+    sources_raw = item.get("sources")
+    sources: list[dict[str, str]] = []
+    if isinstance(sources_raw, list):
+        for entry in sources_raw:
+            if not isinstance(entry, dict):
+                continue
+            cleaned = _sanitize_source(entry)
+            if cleaned:
+                sources.append(cleaned)
+
+    return {
+        "phrase": phrase,
+        "argumentaire": argumentaire,
+        "sources": sources,
+    }
+
+
+def _load_legacy_sqlite() -> list[dict[str, object]]:
+    if not LEGACY_DB_PATH.exists():
+        return []
+    try:
+        conn = sqlite3.connect(LEGACY_DB_PATH)
+        conn.row_factory = sqlite3.Row
+    except sqlite3.Error:
+        return []
+    try:
+        rows = conn.execute(
+            "SELECT phrase, argumentaire, sources FROM argumentaires"
+        ).fetchall()
+    except sqlite3.Error:
+        return []
     finally:
         conn.close()
+
+    legacy: list[dict[str, object]] = []
+    for row in rows:
+        raw_sources = row["sources"]
+        parsed_sources: list[dict[str, str]]
+        if isinstance(raw_sources, str) and raw_sources.strip():
+            try:
+                parsed = json.loads(raw_sources)
+            except json.JSONDecodeError:
+                parsed = []
+        else:
+            parsed = []
+        if not isinstance(parsed, list):
+            parsed = []
+        legacy.append(
+            {
+                "phrase": row["phrase"],
+                "argumentaire": row["argumentaire"],
+                "sources": parsed,
+            }
+        )
+    return legacy
+
+
+def _read_json_store() -> list[dict[str, object]]:
+    if not JSON_DB_PATH.exists():
+        return []
+    try:
+        with JSON_DB_PATH.open("r", encoding="utf-8") as handle:
+            data = json.load(handle)
+    except (OSError, json.JSONDecodeError):
+        return []
+
+    if not isinstance(data, list):
+        return []
+
+    sanitized: list[dict[str, object]] = []
+    for entry in data:
+        if isinstance(entry, dict):
+            cleaned = _sanitize_item(entry)
+            if cleaned:
+                sanitized.append(cleaned)
+    return sanitized
+
+
+def _write_json_store(items: list[dict[str, object]]) -> None:
+    tmp_path = JSON_DB_PATH.with_name(f"{JSON_DB_PATH.name}.tmp")
+    payload = sorted(items, key=lambda it: it["phrase"].lower())
+    with tmp_path.open("w", encoding="utf-8") as handle:
+        json.dump(payload, handle, ensure_ascii=False, indent=2)
+        handle.write("\n")
+    tmp_path.replace(JSON_DB_PATH)
+
+
+def _load_store_map() -> dict[str, dict[str, object]]:
+    existing = {item["phrase"]: item for item in _read_json_store()}
+    if not existing:
+        for item in INITIAL_ARGUMENTAIRES:
+            cleaned = _sanitize_item(item)
+            if cleaned:
+                existing.setdefault(cleaned["phrase"], cleaned)
+    return existing
+
+
+def init_db() -> None:
+    with DB_LOCK:
+        merged: dict[str, dict[str, object]] = {}
+        for source in (INITIAL_ARGUMENTAIRES, _read_json_store(), _load_legacy_sqlite()):
+            for entry in source:
+                if not isinstance(entry, dict):
+                    continue
+                cleaned = _sanitize_item(entry)
+                if cleaned:
+                    merged[cleaned["phrase"]] = cleaned
+        _write_json_store(list(merged.values()))
 
 
 def fetch_argumentaires() -> list[dict[str, object]]:
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    try:
-        rows = conn.execute(
-            "SELECT phrase, argumentaire, sources FROM argumentaires ORDER BY phrase COLLATE NOCASE"
-        ).fetchall()
-        result = []
-        for row in rows:
-            try:
-                sources = json.loads(row["sources"] or "[]")
-            except json.JSONDecodeError:
-                sources = []
-            result.append(
-                {
-                    "phrase": row["phrase"],
-                    "argumentaire": row["argumentaire"],
-                    "sources": sources,
-                }
-            )
-        return result
-    finally:
-        conn.close()
+    with DB_LOCK:
+        items = list(_load_store_map().values())
+    return sorted(items, key=lambda it: it["phrase"].lower())
 
 
 def upsert_argumentaire(
@@ -462,25 +537,18 @@ def upsert_argumentaire(
     argumentaire: str,
     sources: list[dict[str, str]] | None = None,
 ) -> None:
-    conn = sqlite3.connect(DB_PATH)
-    try:
-        conn.execute(
-            """
-            INSERT INTO argumentaires (phrase, argumentaire, sources)
-            VALUES (?, ?, ?)
-            ON CONFLICT(phrase) DO UPDATE SET
-                argumentaire = excluded.argumentaire,
-                sources = excluded.sources
-            """,
-            (
-                phrase,
-                argumentaire,
-                json.dumps(sources or [], ensure_ascii=False),
-            ),
-        )
-        conn.commit()
-    finally:
-        conn.close()
+    with DB_LOCK:
+        store = _load_store_map()
+        entry = {
+            "phrase": phrase,
+            "argumentaire": argumentaire,
+            "sources": sources or [],
+        }
+        cleaned = _sanitize_item(entry)
+        if cleaned is None:
+            raise ValueError("Phrase ou argumentaire manquant après nettoyage")
+        store[cleaned["phrase"]] = cleaned
+        _write_json_store(list(store.values()))
 
 
 class RequestHandler(SimpleHTTPRequestHandler):
