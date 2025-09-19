@@ -4,6 +4,7 @@
 - Static pages (`index.html`, `profil.html`, `mentions-legales.html`, etc.) live at the repo root and are shipped as-is to both GitLab and GitHub Pages.
 - `server.py` exposes the bingo API and serves the static front-end; it seeds and persists data in `argumentaires.db` (created on first run).
 - Keep new shared assets alongside the page that consumes them; if you introduce bundles, group them in a top-level `assets/` directory and reference relative paths only.
+- CSP interdit désormais tout style ou script inline : place chaque feuille de style et logique front dans des fichiers dédiés (`*.css`, `*.js`) et référence-les avec `link` ou `script defer`.
 - Respect the Git remotes described in `README.md`: develop on `dev`, mirror to GitLab for staging, then fast-forward `main`/`gh-pages` for production.
 
 ## Build, Test, and Development Commands
@@ -29,3 +30,4 @@
 ## Security & Configuration Tips
 - Never commit secrets or local SQLite dumps beyond `argumentaires.db` seeds; purge personal data before pushing.
 - Keep Git remotes authenticated via SSH and update Cloudflare/GitHub DNS settings only through the documented process in `README.md`.
+- Quand tu ajoutes un nouvel environnement déployé, pense à mettre à jour `connect-src` dans `_headers` ainsi que la liste des origines autorisées dans `workers-argumentaires/src/index.ts`.
