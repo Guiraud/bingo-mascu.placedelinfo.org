@@ -403,17 +403,18 @@
       return sanitizeApiBase(override);
     }
 
-    const host = window.location.hostname;
+    const host = window.location.hostname.toLowerCase();
     if (host === 'localhost' || host === '127.0.0.1') {
       return '';
     }
     if (host.endsWith('.workers.dev')) {
+      return '';
+    }
+    const firstLabel = host.split('.')[0];
+    if (host.includes('gitlab.io') || firstLabel === 'dev' || firstLabel === 'staging' || firstLabel.endswith('-dev') || firstLabel.endswith('-staging') || firstLabel.endswith('-preview')) {
       return WORKER_ENDPOINTS.dev;
     }
-    if (host.includes('gitlab.io')) {
-      return WORKER_ENDPOINTS.prod;
-    }
-    return WORKER_ENDPOINTS.dev;
+    return WORKER_ENDPOINTS.prod;
   }
 
   function sanitizeApiBase(raw) {

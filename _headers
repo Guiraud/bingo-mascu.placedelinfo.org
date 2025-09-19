@@ -1,5 +1,5 @@
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' https://challenges.cloudflare.com; connect-src 'self' https://workers-argumentaires.guiraud.workers.dev https://dev.workers-argumentaires.guiraud.workers.dev; img-src 'self' data:; style-src 'self'; font-src 'self' https://challenges.cloudflare.com data:; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; frame-src https://challenges.cloudflare.com; object-src 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://challenges.cloudflare.com; connect-src 'self' https://workers-argumentaires.guiraud.workers.dev https://dev.workers-argumentaires.guiraud.workers.dev https://workers-argumentaires.mehdi-guiraud.workers.dev https://workers-argumentaires-dev.mehdi-guiraud.workers.dev; img-src 'self' data:; style-src 'self'; font-src 'self' https://challenges.cloudflare.com data:; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; frame-src https://challenges.cloudflare.com; object-src 'none'
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin

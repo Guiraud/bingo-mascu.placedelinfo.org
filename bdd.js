@@ -405,8 +405,8 @@
   }
 
   const WORKER_ENDPOINTS = Object.freeze({
-    prod: 'https://workers-argumentaires.guiraud.workers.dev',
-    dev: 'https://dev.workers-argumentaires.guiraud.workers.dev'
+    prod: 'https://workers-argumentaires.mehdi-guiraud.workers.dev',
+    dev: 'https://workers-argumentaires-dev.mehdi-guiraud.workers.dev'
   });
 
   const API_BASE = resolveApiBase();
@@ -422,14 +422,15 @@
       return sanitizeApiBase(override);
     }
 
-    const host = window.location.hostname;
+    const host = window.location.hostname.toLowerCase();
     if (host === 'localhost' || host === '127.0.0.1') {
       return '';
     }
     if (host.endsWith('.workers.dev')) {
       return '';
     }
-    if (host.includes('gitlab.io')) {
+    const firstLabel = host.split('.')[0];
+    if (host.includes('gitlab.io') || firstLabel === 'dev' || firstLabel === 'staging' || firstLabel.endswith('-dev') || firstLabel.endswith('-staging') || firstLabel.endswith('-preview')) {
       return WORKER_ENDPOINTS.dev;
     }
     return WORKER_ENDPOINTS.prod;
