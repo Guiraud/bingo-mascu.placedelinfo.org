@@ -617,7 +617,7 @@
       if (host.includes('gitlab.io')) {
         return 'https://dev.workers-argumentaires.guiraud.workers.dev';
       }
-      return 'https://workers-argumentaires.mehdi-guiraud.workers.dev';
+      return 'https://workers-argumentaires.guiraud.workers.dev';
     }
 
     function apiUrl(path) {
@@ -635,15 +635,19 @@
         if (!Array.isArray(items)) throw new Error('Format inattendu');
         const cleanItems = items.filter(item => item && item.phrase);
         if (cleanItems.length) {
-          db = new Map(
-            cleanItems.map(item => [
+          const merged = new Map(
+            FALLBACK_DATA.map(item => [
               item.phrase,
-              {
-                argumentaire: item.argumentaire,
-                sources: Array.isArray(item.sources) ? item.sources : []
-              }
+              { argumentaire: item.argumentaire, sources: item.sources || [] }
             ])
           );
+          cleanItems.forEach(item => {
+            merged.set(item.phrase, {
+              argumentaire: item.argumentaire,
+              sources: Array.isArray(item.sources) ? item.sources : []
+            });
+          });
+          db = merged;
           renderTable();
           return;
         }

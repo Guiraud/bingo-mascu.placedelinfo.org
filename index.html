@@ -223,10 +223,6 @@
       </label>
     </div>
     <div class="toolbar">
-      <input type="text" id="newPhrase" placeholder="Ajouter une phrase" />
-      <button id="addPhrase">Ajouter</button>
-    </div>
-    <div class="toolbar">
       <input type="text" id="contextInput" placeholder="Indiquer le contexte (ex: émission TV, lien YouTube...)" style="flex:1" />
     </div>
   </header>
@@ -676,9 +672,9 @@
         return '';
       }
       if (host.includes('gitlab.io')) {
-        return 'https://dev-workers-argumentaires.guiraud.workers.dev';
+        return 'https://dev.workers-argumentaires.guiraud.workers.dev';
       }
-      return 'https://workers-argumentaires.mehdi-guiraud.workers.dev';
+      return 'https://workers-argumentaires.guiraud.workers.dev';
     }
 
     function apiUrl(path) {
@@ -696,8 +692,6 @@
     const copyBtn = document.getElementById('copy');
     const sizeSel = document.getElementById('size');
     const freeCenter = document.getElementById('freeCenter');
-    const addBtn = document.getElementById('addPhrase');
-    const newPhraseInput = document.getElementById('newPhrase');
     const contextInput = document.getElementById('contextInput');
 
     let size = parseInt(sizeSel.value, 10);
@@ -831,24 +825,11 @@
         setTimeout(() => copyBtn.textContent = 'Copier la liste tirée', 1200);
       });
     }
-
-    function addPhrase() {
-      const val = newPhraseInput.value.trim();
-      if (!val) return;
-      PHRASES.push(val);
-      newPhraseInput.value = '';
-      ARGUMENTAIRES[val] = ARGUMENTAIRES[val] || "Pas encore d'argumentaire détaillé pour cette phrase.";
-      ARG_SOURCES[val] = ARG_SOURCES[val] || [];
-      buildBoard();
-    }
-
     newBtn.addEventListener('click', buildBoard);
     clearBtn.addEventListener('click', clearMarks);
     copyBtn.addEventListener('click', copyList);
     sizeSel.addEventListener('change', buildBoard);
     freeCenter.addEventListener('change', buildBoard);
-    addBtn.addEventListener('click', addPhrase);
-    newPhraseInput.addEventListener('keypress', e => { if (e.key === 'Enter') addPhrase() });
 
     async function loadArgumentaires() {
       try {
@@ -858,18 +839,32 @@
         if (Array.isArray(items) && items.length) {
           const cleanItems = items.filter(item => item && item.phrase);
           if (cleanItems.length) {
-            PHRASES = cleanItems.map(item => item.phrase);
-            ARGUMENTAIRES = Object.fromEntries(cleanItems.map(item => [item.phrase, item.argumentaire]));
-            ARG_SOURCES = Object.fromEntries(cleanItems.map(item => [item.phrase, Array.isArray(item.sources) ? item.sources : []]));
+            const merged = new Map(
+              FALLBACK_DATA.map(entry => [
+                entry.phrase,
+                { argumentaire: entry.argumentaire, sources: entry.sources || [] }
+              ])
+            );
+            cleanItems.forEach(item => {
+              merged.set(item.phrase, {
+                argumentaire: item.argumentaire,
+                sources: Array.isArray(item.sources) ? item.sources : []
+              });
+            });
+            const sorted = Array.from(merged.entries()).sort((a, b) => a[0].localeCompare(b[0], 'fr', { sensitivity: 'base' }));
+            PHRASES = sorted.map(([phrase]) => phrase);
+            ARGUMENTAIRES = Object.fromEntries(sorted.map(([phrase, data]) => [phrase, data.argumentaire]));
+            ARG_SOURCES = Object.fromEntries(sorted.map(([phrase, data]) => [phrase, data.sources]));
             return;
           }
         }
       } catch (err) {
         console.warn("Chargement de la base sqlite impossible, usage du jeu intégré.", err);
       }
-      PHRASES = FALLBACK_DATA.map(item => item.phrase);
-      ARGUMENTAIRES = Object.fromEntries(FALLBACK_DATA.map(item => [item.phrase, item.argumentaire]));
-      ARG_SOURCES = Object.fromEntries(FALLBACK_DATA.map(item => [item.phrase, item.sources || []]));
+      const fallbackSorted = FALLBACK_DATA.slice().sort((a, b) => a.phrase.localeCompare(b.phrase, 'fr', { sensitivity: 'base' }));
+      PHRASES = fallbackSorted.map(item => item.phrase);
+      ARGUMENTAIRES = Object.fromEntries(fallbackSorted.map(item => [item.phrase, item.argumentaire]));
+      ARG_SOURCES = Object.fromEntries(fallbackSorted.map(item => [item.phrase, item.sources || []]));
     }
 
     loadArgumentaires().finally(buildBoard);
