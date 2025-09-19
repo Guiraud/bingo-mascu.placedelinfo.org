@@ -122,6 +122,7 @@
       background: var(--card);
       color: var(--ink);
     }
+    .turnstile-container { display:flex; justify-content:center; margin-bottom:10px; }
     button {
       cursor:pointer;
       font-weight:600;
@@ -147,6 +148,7 @@
       background: rgba(61,20,77,0.8);
     }
   </style>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
   <header>
@@ -160,6 +162,9 @@
 
   <main>
     <form id="argForm">
+      <div id="turnstile-container" class="turnstile-container">
+        <div class="cf-turnstile" data-sitekey="YOUR_TURNSTILE_SITE_KEY" data-theme="dark"></div>
+      </div>
       <input type="text" id="phrase" placeholder="Phrase" required />
       <textarea id="argumentaire" placeholder="Argumentaire détaillé (basé sur études et littérature féministe)" required></textarea>
       <textarea id="sources" placeholder="Sources (JSON ou une source par ligne : Titre - URL)" rows="4"></textarea>
@@ -602,8 +607,8 @@
     const sourcesInput = document.getElementById('sources');
 
     const WORKER_ENDPOINTS = Object.freeze({
-      prod: 'https://workers-argumentaires.mehdi-guiraud.workers.dev',
-      dev: 'https://workers-argumentaires-dev.mehdi-guiraud.workers.dev'
+      prod: 'https://workers-argumentaires.guiraud.workers.dev',
+      dev: 'https://dev.workers-argumentaires.guiraud.workers.dev'
     });
 
     const API_BASE = resolveApiBase();
@@ -624,12 +629,12 @@
         return '';
       }
       if (host.endsWith('.workers.dev')) {
-        return WORKER_ENDPOINTS.dev;
+        return '';
       }
       if (host.includes('gitlab.io')) {
-        return WORKER_ENDPOINTS.prod;
+        return WORKER_ENDPOINTS.dev;
       }
-      return WORKER_ENDPOINTS.dev;
+      return WORKER_ENDPOINTS.prod;
     }
 
     function sanitizeApiBase(raw) {
@@ -778,24 +783,31 @@
       if (!phrase || !arg) return;
 
       const sources = parseSources(sourcesInput.value || '');
+      const turnstileToken = window.turnstile?.getResponse?.(document.querySelector('.cf-turnstile')) || '';
+      if (!turnstileToken) {
+        alert('Veuillez valider le contrôle anti-robot.');
+        return;
+      }
 
       submitBtn.disabled = true;
       try {
         const res = await fetch(apiUrl('/api/argumentaires'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ phrase, argumentaire: arg, sources })
+          body: JSON.stringify({ phrase, argumentaire: arg, sources, turnstile_token: turnstileToken })
         });
         if (!res.ok) {
-          const detail = await res.text();
-          throw new Error(detail || `Erreur ${res.status}`);
+          const detail = await res.json().catch(() => ({}));
+          const message = detail.error ? String(detail.error) : `Erreur ${res.status}`;
+          throw new Error(message);
         }
         db.set(phrase, { argumentaire: arg, sources });
         form.reset();
+        window.turnstile?.reset?.();
         renderTable();
       } catch (err) {
         console.error('Sauvegarde impossible', err);
-        alert("Impossible d'enregistrer dans la base. Voir la console pour les détails.");
+        alert(err.message.includes('rate-limit') ? 'Vous envoyez trop rapidement. Merci de patienter avant une nouvelle soumission.' : "Impossible d'enregistrer dans la base. Voir la console pour les détails.");
       } finally {
         submitBtn.disabled = false;
       }
