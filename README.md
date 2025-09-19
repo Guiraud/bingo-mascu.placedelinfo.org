@@ -74,6 +74,17 @@ pages:
 - `Caching` : fixez une `Browser Cache TTL` (ex: 1 heure) et n'utilisez `Cache Everything` que si vous maitrisez les impacts.
 - `Security` : creez des regles de firewall pour limiter le trafic malveillant.
 
+### Turnstile (anti-robot)
+1. **Créer le widget** : dans le dashboard Cloudflare Turnstile, ajoute un widget “Managed challenge” pour `bingo-mascu.mehdiguiraud.net`. Conserve la clé de site (publique) et la clé secrète.
+2. **Déployer les secrets** : exécute depuis la racine du dépôt `TURNSTILE_SITE_KEY="pk_live_…" TURNSTILE_SECRET_VALUE="sk_live_…" ./scripts/deploy.sh dev|prod|both`. Le script :
+   - injecte temporairement la clé publique dans `bdd.html`,
+   - pousse la clé secrète (et le `API_SHARED_SECRET` si manquant) dans le Worker via `wrangler secret put`,
+   - déploie l’environnement demandé, puis restaure `bdd.html` localement.
+3. **Vérifier** :
+   - recharge `https://bingo-mascu.mehdiguiraud.net/bdd.html` et contrôle que le widget Turnstile s’affiche sans erreur 400,
+   - tente une soumission ; la réponse doit être `201` et la console ne doit pas contenir `turnstile-verification-failed`.
+4. **Maintenir la configuration** : à chaque nouvel environnement, ajoute son domaine dans `connect-src` (fichier `_headers`) et dans `ALLOWED_ORIGINS` du Worker (`workers-argumentaires/src/index.ts`).
+
 ## Depannage
 - Propagation DNS : peut prendre jusqu'a 24h. Controlez avec `dig` ou `nslookup`.
 - Boucles de redirection : si HTTPS est force deux fois, desactivez `Enforce HTTPS` dans GitHub et laissez Cloudflare gerer.
