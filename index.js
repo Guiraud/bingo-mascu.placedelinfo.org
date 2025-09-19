@@ -702,6 +702,7 @@
   const copyBtn = document.getElementById('copy');
   const sizeSel = document.getElementById('size');
   const contextInput = document.getElementById('contextInput');
+  const detailEmbedQuery = window.matchMedia('(min-width: 900px)');
 
   let size = parseInt(sizeSel.value, 10);
   let lastDetailHTML = '';
@@ -819,7 +820,9 @@
         : size === 3
           ? { rows: [1], cols: [1], area: '2 / 2 / span 1 / span 1' }
           : null;
-    const detailSlotCount = detailConfig ? detailConfig.rows.length * detailConfig.cols.length : 0;
+    const embedDetail = detailConfig && detailEmbedQuery.matches;
+    const effectiveDetail = embedDetail ? detailConfig : null;
+    const detailSlotCount = effectiveDetail ? effectiveDetail.rows.length * effectiveDetail.cols.length : 0;
     const availableSlots = totalCells - detailSlotCount;
     playableCellCount = availableSlots;
     const picked = takePhrases(availableSlots, useFree);
@@ -830,10 +833,10 @@
     boardMatrix = Array.from({ length: size }, () => Array(size).fill(null));
 
     let detailSlotElement = null;
-    if (detailConfig) {
+    if (effectiveDetail) {
       detailSlotElement = document.createElement('div');
       detailSlotElement.className = 'board-detail-slot';
-      detailSlotElement.style.gridArea = detailConfig.area;
+      detailSlotElement.style.gridArea = effectiveDetail.area;
       addGlitterFrame(detailSlotElement);
       const detailWrapper = document.createElement('div');
       detailWrapper.className = 'board-detail-wrapper';
@@ -843,11 +846,11 @@
       detailsEl.classList.add('board-details');
     }
 
-    const detailSkip = detailConfig
-      ? new Set(detailConfig.rows.flatMap(r => detailConfig.cols.map(c => `${r}-${c}`)))
+    const detailSkip = effectiveDetail
+      ? new Set(effectiveDetail.rows.flatMap(r => effectiveDetail.cols.map(c => `${r}-${c}`)))
       : null;
-    const phenMaxBase = Math.min(6, availableSlots);
-    const phenMinBase = Math.min(3, availableSlots);
+    const phenMaxBase = Math.min(embedDetail ? 6 : 5, availableSlots);
+    const phenMinBase = Math.min(embedDetail ? 3 : 2, availableSlots);
     const phenMin = phenMaxBase > 0 ? Math.max(1, Math.min(phenMinBase, phenMaxBase)) : 0;
     const phenMax = phenMaxBase;
     const desiredPhenomenaCount = phenMax > 0 ? Math.min(randomBetween(phenMin, phenMax), PATRIARCHAL_PHENOMENA.length) : 0;
@@ -1010,6 +1013,12 @@
   clearBtn.addEventListener('click', clearMarks);
   copyBtn.addEventListener('click', copyList);
   sizeSel.addEventListener('change', buildBoard);
+  const handleDetailEmbedChange = () => buildBoard();
+  if (typeof detailEmbedQuery.addEventListener === 'function') {
+    detailEmbedQuery.addEventListener('change', handleDetailEmbedChange);
+  } else if (typeof detailEmbedQuery.addListener === 'function') {
+    detailEmbedQuery.addListener(handleDetailEmbedChange);
+  }
 
   async function loadArgumentaires() {
     try {

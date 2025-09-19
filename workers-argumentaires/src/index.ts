@@ -1,4 +1,3 @@
-
 interface Env {
   KV_ARGUMENTAIRES: KVNamespace;
   TURNSTILE_SECRET?: string;
@@ -20,13 +19,20 @@ const STATIC_ALLOWED_ORIGINS = new Set(
   ].map(origin => origin.toLowerCase())
 );
 
-const FLEXIBLE_ALLOWED_SUFFIXES = ['.gitlab.io', '.github.io', '.workers.dev'];
+const STATIC_ALLOWED_ORIGINS = new Set<string>([
+  'https://bingo-mascu.mehdiguiraud.net',
+  'https://guiraud.github.io',
+  'https://guiraud.gitlab.io',
+  'https://bingo-mascu-placedelinfo-org-71e588.gitlab.io',
+  'https://workers-argumentaires.guiraud.workers.dev',
+  'https://workers-argumentaires.mehdi-guiraud.workers.dev',
+  'https://workers-argumentaires-dev.mehdi-guiraud.workers.dev',
+  'https://dev.workers-argumentaires.guiraud.workers.dev',
+  'http://localhost:8000',
+  'http://127.0.0.1:8787'
+].map(origin => origin.toLowerCase()));
 
-interface ArgumentaireItem {
-  phrase: string;
-  argumentaire: string;
-  sources?: Array<Record<string, string>>;
-}
+const FLEXIBLE_ALLOWED_SUFFIXES = ['.gitlab.io', '.github.io', '.workers.dev'];
 
 interface ArgumentaireItem {
   phrase: string;
@@ -133,6 +139,45 @@ export default {
   }
 };
 
+async function enforceRateLimit(env: Env, ip: string) {
+  const windowId = new Date().toISOString().slice(0, 16);
+  const bucket = `${RATE_LIMIT_PREFIX}:${windowId}:${ip}`;
+  const existing = await env.KV_ARGUMENTAIRES.get(bucket);
+  const currentCount = existing ? Number(existing) : 0;
+  if (currentCount >= RATE_LIMIT_MAX_REQUESTS) {
+    return { allowed: false, retryAfter: RATE_LIMIT_BUCKET_SECONDS };
+  }
+  await env.KV_ARGUMENTAIRES.put(bucket, String(currentCount + 1), { expirationTtl: RATE_LIMIT_BUCKET_SECONDS });
+  return { allowed: true, retryAfter: 0 };
+}
+
+async function verifyTurnstile(secret: string, token: string, ip: string): Promise<boolean> {
+  if (!token) {
+    return false;
+  }
+
+  const formData = new FormData();
+  formData.append('secret', secret);
+  formData.append('response', token);
+  formData.append('remoteip', ip);
+
+  try {
+    const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      body: formData
+    });
+    if (!response.ok) {
+      console.warn('Turnstile verification failed', response.status, await response.text());
+      return false;
+    }
+    const data = await response.json() as { success?: boolean };
+    return Boolean(data.success);
+  } catch (error) {
+    console.warn('Turnstile verification failed', error);
+    return false;
+  }
+}
+
 async function readArgumentaires(env: Env): Promise<ArgumentaireItem[]> {
   const raw = await env.KV_ARGUMENTAIRES.get(ARGUMENTAIRES_KEY);
   if (!raw) {
@@ -140,15 +185,18 @@ async function readArgumentaires(env: Env): Promise<ArgumentaireItem[]> {
   }
   try {
     const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed)) {
-      return parsed
-        .map(item => normalizeEntry(item as Record<string, unknown>))
-        .filter((item): item is ArgumentaireItem => Boolean(item));
+    if (!Array.isArray(parsed)) {
+      return [];
     }
+    const cleaned = parsed
+      .map(item => normalizeStoredItem(item))
+      .filter((item): item is ArgumentaireItem => Boolean(item));
+    cleaned.sort((a, b) => a.phrase.localeCompare(b.phrase, 'fr', { sensitivity: 'base' }));
+    return cleaned;
   } catch (error) {
-    console.warn("Invalid JSON stored in KV", error);
+    console.warn('Impossible de parser la base en KV', error);
+    return [];
   }
-  return [];
 }
 
 function normalizeEntry(value: Record<string, unknown> | null | undefined): ArgumentaireItem | null {
@@ -285,14 +333,19 @@ function corsHeaders(origin: string, isPreflight: boolean): Record<string, strin
   return headers;
 }
 
-function allowOrigin(origin: string): string {
-  if (!origin) {
-    return '*';
-  }
+function isOriginAllowed(origin: string): boolean {
+  if (!origin) return false;
   const normalized = origin.toLowerCase();
   if (STATIC_ALLOWED_ORIGINS.has(normalized)) {
-    return origin;
+    return true;
   }
+  try {
+    const url = new URL(normalized);
+    return FLEXIBLE_ALLOWED_SUFFIXES.some(suffix => url.hostname.endsWith(suffix));
+  } catch {
+    return false;
+  }
+}
 
   try {
     const url = new URL(origin);
@@ -303,5 +356,12 @@ function allowOrigin(origin: string): string {
     // ignore invalid origin and fall back to wildcard
   }
 
-  return '*';
+function hashIp(ip: string): string {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(ip);
+  let hash = 0;
+  for (let i = 0; i < data.length; i += 1) {
+    hash = (hash * 31 + data[i]) >>> 0;
+  }
+  return hash.toString(16);
 }
