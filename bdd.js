@@ -430,7 +430,7 @@
       return '';
     }
     const firstLabel = host.split('.')[0];
-    if (host.includes('gitlab.io') || firstLabel === 'dev' || firstLabel === 'staging' || firstLabel.endswith('-dev') || firstLabel.endswith('-staging') || firstLabel.endswith('-preview')) {
+    if (host.includes('gitlab.io') || firstLabel === 'dev' || firstLabel === 'staging' || firstLabel.endsWith('-dev') || firstLabel.endsWith('-staging') || firstLabel.endsWith('-preview')) {
       return WORKER_ENDPOINTS.dev;
     }
     return WORKER_ENDPOINTS.prod;
