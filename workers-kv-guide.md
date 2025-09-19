@@ -85,34 +85,35 @@ interface ArgumentaireItem {
   sources?: Array<Record<string, string>>;
 }
 
-const ARGUMENTAIRES_KEY = "argumentaires.json";
-const ALLOWED_ORIGINS = new Set([
-  "https://ton-site-dev.gitlab.io",
-  "https://ton-site.github.io",
-  "https://ton-worker.workers.dev",
-  "https://dev.ton-worker.workers.dev",
-  "http://localhost:8000",
-  "http://127.0.0.1:8787"
-]);
+const ARGUMENTAIRES_KEY = 'argumentaires.json';
+const STATIC_ALLOWED_ORIGINS = new Set(
+  [
+    'https://ton-domaine-production.example',
+    'https://ton-utilisateur.github.io',
+    'https://ton-projet.gitlab.io',
+    'https://ton-worker.workers.dev',
+    'https://dev.ton-worker.workers.dev',
+    'http://localhost:8000',
+    'http://127.0.0.1:8787'
+  ].map(origin => origin.toLowerCase())
+);
+const FLEXIBLE_ALLOWED_SUFFIXES = ['.gitlab.io', '.github.io', '.workers.dev'];
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
-    const origin = request.headers.get("origin") ?? "";
+    const origin = request.headers.get('origin') ?? '';
 
-    if (request.method === "OPTIONS") {
-      return new Response(null, {
-        status: 204,
-        headers: corsHeaders(origin, true)
-      });
+    if (request.method === 'OPTIONS') {
+      return new Response(null, { status: 204, headers: corsHeaders(origin, true) });
     }
 
-    if (request.method === "POST" && url.pathname === "/api/argumentaires") {
+    if (request.method === 'POST' && url.pathname === '/api/argumentaires') {
       try {
-        const payload = await request.json() as Record<string, unknown>;
+        const payload = (await request.json()) as Record<string, unknown>;
         const entry = normalizeEntry(payload);
         if (!entry) {
-          return jsonResponse({ error: "invalid-payload" }, 400, origin);
+          return jsonResponse({ error: 'invalid-payload' }, 400, origin);
         }
 
         const list = await readArgumentaires(env);
@@ -121,35 +122,30 @@ export default {
         filtered.sort((a, b) => a.phrase.localeCompare(b.phrase, 'fr', { sensitivity: 'base' }));
         await env.KV_ARGUMENTAIRES.put(ARGUMENTAIRES_KEY, JSON.stringify(filtered));
 
-        return jsonResponse({ status: "ok" }, 201, origin);
+        return jsonResponse({ status: 'ok' }, 201, origin);
       } catch {
-        return jsonResponse({ error: "invalid-json" }, 400, origin);
+        return jsonResponse({ error: 'invalid-json' }, 400, origin);
       }
     }
 
-    if (request.method === "GET" && url.pathname === "/api/argumentaires") {
+    if (request.method === 'GET' && url.pathname === '/api/argumentaires') {
       const list = await readArgumentaires(env);
       return new Response(JSON.stringify(list), {
         status: 200,
         headers: {
           ...corsHeaders(origin),
-          "content-type": "application/json; charset=utf-8"
+          'content-type': 'application/json; charset=utf-8'
         }
       });
     }
 
-    return new Response("Not Found", {
-      status: 404,
-      headers: corsHeaders(origin)
-    });
+    return new Response('Not Found', { status: 404, headers: corsHeaders(origin) });
   }
 };
 
 async function readArgumentaires(env: Env): Promise<ArgumentaireItem[]> {
   const raw = await env.KV_ARGUMENTAIRES.get(ARGUMENTAIRES_KEY);
-  if (!raw) {
-    return [];
-  }
+  if (!raw) return [];
   try {
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed)) {
@@ -158,29 +154,26 @@ async function readArgumentaires(env: Env): Promise<ArgumentaireItem[]> {
         .filter((item): item is ArgumentaireItem => Boolean(item));
     }
   } catch (error) {
-    console.warn("Invalid JSON stored in KV", error);
+    console.warn('Invalid JSON stored in KV', error);
   }
   return [];
 }
 
 function normalizeEntry(value: Record<string, unknown> | null | undefined): ArgumentaireItem | null {
-  if (!value || typeof value !== "object") {
-    return null;
-  }
-  const phrase = typeof value["phrase"] === "string" ? value["phrase"].trim() : "";
-  const argumentaire = typeof value["argumentaire"] === "string" ? value["argumentaire"].trim() : "";
-  if (!phrase || !argumentaire) {
-    return null;
-  }
-  const sourcesArray = Array.isArray(value["sources"]) ? value["sources"] : [];
+  if (!value || typeof value !== 'object') return null;
+  const phrase = typeof value['phrase'] === 'string' ? value['phrase'].trim() : '';
+  const argumentaire = typeof value['argumentaire'] === 'string' ? value['argumentaire'].trim() : '';
+  if (!phrase || !argumentaire) return null;
+
+  const sourcesArray = Array.isArray(value['sources']) ? value['sources'] : [];
   const sources = sourcesArray
-    .filter(item => item && typeof item === "object")
+    .filter(item => item && typeof item === 'object')
     .map(item => {
       const obj = item as Record<string, unknown>;
       const source: Record<string, string> = {};
-      if (typeof obj.titre === "string" && obj.titre.trim()) source.titre = obj.titre.trim();
-      if (typeof obj.auteur === "string" && obj.auteur.trim()) source.auteur = obj.auteur.trim();
-      if (typeof obj.url === "string" && obj.url.trim()) source.url = obj.url.trim();
+      if (typeof obj.titre === 'string' && obj.titre.trim()) source.titre = obj.titre.trim();
+      if (typeof obj.auteur === 'string' && obj.auteur.trim()) source.auteur = obj.auteur.trim();
+      if (typeof obj.url === 'string' && obj.url.trim()) source.url = obj.url.trim();
       return source;
     })
     .filter(source => Object.keys(source).length > 0);
@@ -193,33 +186,42 @@ function jsonResponse(body: unknown, status: number, origin: string): Response {
     status,
     headers: {
       ...corsHeaders(origin),
-      "content-type": "application/json; charset=utf-8"
+      'content-type': 'application/json; charset=utf-8'
     }
   });
 }
 
 function corsHeaders(origin: string, isPreflight = false): Record<string, string> {
   const headers: Record<string, string> = {
-    "access-control-allow-origin": allowOrigin(origin),
-    "access-control-allow-methods": "GET, POST, OPTIONS",
-    "access-control-allow-headers": "content-type"
+    'access-control-allow-origin': allowOrigin(origin),
+    'access-control-allow-methods': 'GET, POST, OPTIONS',
+    'access-control-allow-headers': 'content-type',
+    vary: 'Origin'
   };
-
   if (isPreflight) {
-    headers["access-control-max-age"] = "86400";
+    headers['access-control-max-age'] = '86400';
   }
-
   return headers;
 }
 
 function allowOrigin(origin: string): string {
-  if (ALLOWED_ORIGINS.has(origin) || origin === "") {
-    return origin || "*";
+  if (!origin) return '*';
+  const normalized = origin.toLowerCase();
+  if (STATIC_ALLOWED_ORIGINS.has(normalized)) {
+    return origin;
   }
-  return "*";
+  try {
+    const url = new URL(origin);
+    if (FLEXIBLE_ALLOWED_SUFFIXES.some(suffix => url.hostname.endsWith(suffix))) {
+      return origin;
+    }
+  } catch {
+    // ignore invalid origin values
+  }
+  return '*';
 }
 ```
-- Mets à jour `ALLOWED_ORIGINS` avec les URL autorisées (ex: GitHub Pages, GitLab Pages, localhost, domaine Workers).
+- Mets à jour `STATIC_ALLOWED_ORIGINS` avec les URL autorisées (ex: GitHub Pages, GitLab Pages, domaine perso, localhost) et remplace `WORKER_ENDPOINTS` par tes URLs de prod/préprod.
 - Mets aussi à jour les valeurs de secours dans `resolveApiBase` (`bdd.html`, `index.html`) pour pointer vers ton domaine Workers (prod et dev).
 - Si tu utilises JavaScript, supprime la déclaration `interface Env` et les types.
 - Le Worker conserve la liste complète d'argumentaires (le POST remplace ou ajoute l'entrée correspondant à la phrase) avant de la renvoyer.

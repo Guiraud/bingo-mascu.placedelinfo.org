@@ -604,20 +604,57 @@
     const tableBody = document.querySelector('#argTable tbody');
     const submitBtn = form.querySelector('button[type="submit"]');
     const sourcesInput = document.getElementById('sources');
+
+    const WORKER_ENDPOINTS = Object.freeze({
+      prod: 'https://workers-argumentaires.mehdi-guiraud.workers.dev',
+      dev: 'https://dev.workers-argumentaires.guiraud.workers.dev'
+    });
+
     const API_BASE = resolveApiBase();
 
     function resolveApiBase() {
-      if (typeof window !== 'undefined' && typeof window.ARGUMENTAIRES_API_URL === 'string' && window.ARGUMENTAIRES_API_URL.trim() !== '') {
-        return window.ARGUMENTAIRES_API_URL.replace(/\/$/, '');
+      const override = pickFirstDefined([
+        typeof window !== 'undefined' ? window.ARGUMENTAIRES_API_URL : undefined,
+        document.documentElement?.getAttribute('data-api-base'),
+        document.body?.dataset?.apiBase,
+        document.querySelector('meta[name="argumentaires-api"]')?.content
+      ]);
+      if (override) {
+        return sanitizeApiBase(override);
       }
+
       const host = window.location.hostname;
       if (host === 'localhost' || host === '127.0.0.1') {
         return '';
       }
-      if (host.includes('gitlab.io')) {
-        return 'https://dev.workers-argumentaires.guiraud.workers.dev';
+      if (host.endsWith('.workers.dev')) {
+        return '';
       }
-      return 'https://workers-argumentaires.guiraud.workers.dev';
+      if (host.includes('gitlab.io')) {
+        return WORKER_ENDPOINTS.dev;
+      }
+      return WORKER_ENDPOINTS.prod;
+    }
+
+    function sanitizeApiBase(raw) {
+      const trimmed = raw.trim();
+      if (!trimmed) return '';
+      try {
+        const url = new URL(trimmed, window.location.origin);
+        const cleanPath = url.pathname.endsWith('/') ? url.pathname.slice(0, -1) : url.pathname;
+        return `${url.origin}${cleanPath}`;
+      } catch (_) {
+        return trimmed.replace(/\/$/, '');
+      }
+    }
+
+    function pickFirstDefined(values) {
+      for (const value of values) {
+        if (typeof value === 'string' && value.trim()) {
+          return value;
+        }
+      }
+      return undefined;
     }
 
     function apiUrl(path) {

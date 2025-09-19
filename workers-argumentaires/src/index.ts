@@ -3,16 +3,19 @@ interface Env {
 }
 
 const ARGUMENTAIRES_KEY = "argumentaires.json";
-const ALLOWED_ORIGINS = new Set([
-  "https://bingo-mascu-placedelinfo-org-71e588.gitlab.io",
-  "https://guiraud.github.io",
-  "https://bingo-mascu.mehdiguiraud.net",
-  "https://guiraud.gitlab.io",
-  "https://workers-argumentaires.guiraud.workers.dev",
-  "https://dev.workers-argumentaires.guiraud.workers.dev",
-  "http://localhost:8000",
-  "http://127.0.0.1:8787"
-]);
+const STATIC_ALLOWED_ORIGINS = new Set(
+  [
+    'https://bingo-mascu.mehdiguiraud.net',
+    'https://guiraud.github.io',
+    'https://guiraud.gitlab.io',
+    'https://workers-argumentaires.guiraud.workers.dev',
+    'https://dev.workers-argumentaires.guiraud.workers.dev',
+    'http://localhost:8000',
+    'http://127.0.0.1:8787'
+  ].map(origin => origin.toLowerCase())
+);
+
+const FLEXIBLE_ALLOWED_SUFFIXES = ['.gitlab.io', '.github.io', '.workers.dev'];
 
 interface ArgumentaireItem {
   phrase: string;
@@ -131,21 +134,36 @@ function jsonResponse(body: unknown, status: number, origin: string): Response {
 
 function corsHeaders(origin: string, isPreflight = false): Record<string, string> {
   const headers: Record<string, string> = {
-    "access-control-allow-origin": allowOrigin(origin),
-    "access-control-allow-methods": "GET, POST, OPTIONS",
-    "access-control-allow-headers": "content-type"
+    'access-control-allow-origin': allowOrigin(origin),
+    'access-control-allow-methods': 'GET, POST, OPTIONS',
+    'access-control-allow-headers': 'content-type',
+    vary: 'Origin'
   };
 
   if (isPreflight) {
-    headers["access-control-max-age"] = "86400";
+    headers['access-control-max-age'] = '86400';
   }
 
   return headers;
 }
 
 function allowOrigin(origin: string): string {
-  if (ALLOWED_ORIGINS.has(origin) || origin === "") {
-    return origin || "*";
+  if (!origin) {
+    return '*';
   }
-  return "*";
+  const normalized = origin.toLowerCase();
+  if (STATIC_ALLOWED_ORIGINS.has(normalized)) {
+    return origin;
+  }
+
+  try {
+    const url = new URL(origin);
+    if (FLEXIBLE_ALLOWED_SUFFIXES.some(suffix => url.hostname.endsWith(suffix))) {
+      return origin;
+    }
+  } catch {
+    // ignore invalid origin and fall back to wildcard
+  }
+
+  return '*';
 }
