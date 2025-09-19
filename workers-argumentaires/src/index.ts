@@ -1,5 +1,8 @@
+
 interface Env {
   KV_ARGUMENTAIRES: KVNamespace;
+  TURNSTILE_SECRET?: string;
+  API_SHARED_SECRET?: string;
 }
 
 const ARGUMENTAIRES_KEY = "argumentaires.json";
@@ -25,10 +28,33 @@ interface ArgumentaireItem {
   sources?: Array<Record<string, string>>;
 }
 
+interface ArgumentaireItem {
+  phrase: string;
+  argumentaire: string;
+  sources?: Array<Record<string, string>>;
+  updated_at: string;
+  ip_hash?: string;
+}
+
+interface NormalizedEntry {
+  item: ArgumentaireItem;
+  phraseKey: string;
+}
+
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    const origin = request.headers.get('origin') ?? '';
+    const ip = request.headers.get('cf-connecting-ip') ?? 'unknown';
+
+    if (!isOriginAllowed(origin) && origin !== '') {
+      return jsonResponse({ error: 'origin-not-allowed' }, 403, origin);
+    }
+
+    if (request.method === 'OPTIONS') {
+      return new Response(null, { status: 204, headers: corsHeaders(origin, true) });
+    }
+
     const url = new URL(request.url);
-    const origin = request.headers.get("origin") ?? "";
 
     if (request.method === "OPTIONS") {
       return new Response(null, {
@@ -55,6 +81,41 @@ export default {
       } catch (error) {
         return jsonResponse({ error: "invalid-json" }, 400, origin);
       }
+
+      if (env.API_SHARED_SECRET) {
+        const suppliedSecret = request.headers.get('x-api-key');
+        if (suppliedSecret !== env.API_SHARED_SECRET) {
+          return jsonResponse({ error: 'unauthorized' }, 401, origin);
+        }
+      }
+
+      let payload: Record<string, unknown>;
+      try {
+        payload = await request.json() as Record<string, unknown>;
+      } catch {
+        return jsonResponse({ error: 'invalid-json' }, 400, origin);
+      }
+
+      if (env.TURNSTILE_SECRET) {
+        const token = typeof payload.turnstile_token === 'string' ? payload.turnstile_token : '';
+        const turnstileOk = await verifyTurnstile(env.TURNSTILE_SECRET, token, ip);
+        if (!turnstileOk) {
+          return jsonResponse({ error: 'turnstile-verification-failed' }, 403, origin);
+        }
+      }
+
+      const normalized = normalizeEntry(payload, ip);
+      if (!normalized) {
+        return jsonResponse({ error: 'invalid-payload' }, 422, origin);
+      }
+
+      const items = await readArgumentaires(env);
+      const filtered = items.filter(item => item.phrase.toLowerCase() !== normalized.phraseKey);
+      filtered.push(normalized.item);
+      filtered.sort((a, b) => a.phrase.localeCompare(b.phrase, 'fr', { sensitivity: 'base' }));
+      await env.KV_ARGUMENTAIRES.put(ARGUMENTAIRES_KEY, JSON.stringify(filtered));
+
+      return jsonResponse({ status: 'ok' }, 201, origin);
     }
 
     if (request.method === "GET" && url.pathname === "/api/argumentaires") {
@@ -62,16 +123,13 @@ export default {
       return new Response(JSON.stringify(list), {
         status: 200,
         headers: {
-          ...corsHeaders(origin),
-          "content-type": "application/json; charset=utf-8"
+          ...corsHeaders(origin, false),
+          'content-type': 'application/json; charset=utf-8'
         }
       });
     }
 
-    return new Response("Not Found", {
-      status: 404,
-      headers: corsHeaders(origin)
-    });
+    return jsonResponse({ error: 'not-found' }, 404, origin);
   }
 };
 
@@ -146,6 +204,84 @@ function corsHeaders(origin: string, isPreflight = false): Record<string, string
     headers['access-control-max-age'] = '86400';
   }
 
+  const phrase = escapeHtml(phraseRaw);
+  const argumentaire = escapeHtml(argumentaireRaw);
+  const phraseKey = phrase.toLowerCase();
+
+  const sources: Array<Record<string, string>> = [];
+  for (const source of sourcesRaw.slice(0, MAX_SOURCES)) {
+    if (!source || typeof source !== 'object') continue;
+    const titreRaw = typeof (source as Record<string, unknown>).titre === 'string' ? (source as Record<string, unknown>).titre.trim() : '';
+    const auteurRaw = typeof (source as Record<string, unknown>).auteur === 'string' ? (source as Record<string, unknown>).auteur.trim() : '';
+    const urlRaw = typeof (source as Record<string, unknown>).url === 'string' ? (source as Record<string, unknown>).url.trim() : '';
+
+    if (!titreRaw && !urlRaw) continue;
+    if (urlRaw && !isSafeUrl(urlRaw)) continue;
+
+    const clean: Record<string, string> = {};
+    if (titreRaw) clean.titre = escapeHtml(titreRaw);
+    if (auteurRaw) clean.auteur = escapeHtml(auteurRaw);
+    if (urlRaw) clean.url = urlRaw;
+    sources.push(clean);
+  }
+
+  return {
+    phraseKey,
+    item: {
+      phrase,
+      argumentaire,
+      sources: sources.length ? sources : undefined,
+      updated_at: new Date().toISOString(),
+      ip_hash: hashIp(ip)
+    }
+  };
+}
+
+function normalizeStoredItem(value: Record<string, unknown>): ArgumentaireItem | null {
+  if (!value || typeof value !== 'object') {
+    return null;
+  }
+  const phrase = typeof value.phrase === 'string' ? value.phrase : '';
+  const argumentaire = typeof value.argumentaire === 'string' ? value.argumentaire : '';
+  if (!phrase || !argumentaire) {
+    return null;
+  }
+  const sources = Array.isArray(value.sources) ? value.sources.filter(isValidSourceRecord) : undefined;
+  const updatedAt = typeof value.updated_at === 'string' ? value.updated_at : new Date().toISOString();
+  const ipHash = typeof value.ip_hash === 'string' ? value.ip_hash : undefined;
+  return { phrase, argumentaire, sources, updated_at: updatedAt, ip_hash: ipHash };
+}
+
+function isValidSourceRecord(entry: unknown): entry is Record<string, string> {
+  if (!entry || typeof entry !== 'object') return false;
+  const obj = entry as Record<string, unknown>;
+  const titreOk = typeof obj.titre === 'string';
+  const auteurOk = typeof obj.auteur === 'string';
+  const urlOk = typeof obj.url === 'string' ? isSafeUrl(obj.url) : true;
+  return (titreOk || auteurOk || urlOk);
+}
+
+function jsonResponse(body: unknown, status: number, origin: string): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      ...corsHeaders(origin, false),
+      'content-type': 'application/json; charset=utf-8'
+    }
+  });
+}
+
+function corsHeaders(origin: string, isPreflight: boolean): Record<string, string> {
+  const allowedOrigin = isOriginAllowed(origin) ? origin : 'null';
+  const headers: Record<string, string> = {
+    'access-control-allow-origin': allowedOrigin,
+    'access-control-allow-methods': 'GET, POST, OPTIONS',
+    'access-control-allow-headers': 'content-type, x-api-key',
+    vary: 'Origin'
+  };
+  if (isPreflight) {
+    headers['access-control-max-age'] = '86400';
+  }
   return headers;
 }
 
