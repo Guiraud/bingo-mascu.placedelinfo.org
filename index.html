@@ -665,6 +665,29 @@
       FALLBACK_DATA.map(item => [item.phrase, item.sources || []])
     );
 
+    const API_BASE = resolveApiBase();
+
+    function resolveApiBase() {
+      if (typeof window !== 'undefined' && typeof window.ARGUMENTAIRES_API_URL === 'string' && window.ARGUMENTAIRES_API_URL.trim() !== '') {
+        return window.ARGUMENTAIRES_API_URL.replace(/\/$/, '');
+      }
+      const host = window.location.hostname;
+      if (host === 'localhost' || host === '127.0.0.1') {
+        return '';
+      }
+      if (host.includes('gitlab.io')) {
+        return 'https://dev-workers-argumentaires.guiraud.workers.dev';
+      }
+      return 'https://workers-argumentaires.mehdi-guiraud.workers.dev';
+    }
+
+    function apiUrl(path) {
+      if (!API_BASE) {
+        return path;
+      }
+      return `${API_BASE}${path}`;
+    }
+
     const boardEl = document.getElementById('board');
     const statsEl = document.getElementById('stats');
     const detailsEl = document.getElementById('details');
@@ -829,7 +852,7 @@
 
     async function loadArgumentaires() {
       try {
-        const res = await fetch('/api/argumentaires');
+        const res = await fetch(apiUrl('/api/argumentaires'));
         if (!res.ok) throw new Error(`Statut ${res.status}`);
         const items = await res.json();
         if (Array.isArray(items) && items.length) {

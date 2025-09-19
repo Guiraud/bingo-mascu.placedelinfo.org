@@ -604,10 +604,32 @@
     const tableBody = document.querySelector('#argTable tbody');
     const submitBtn = form.querySelector('button[type="submit"]');
     const sourcesInput = document.getElementById('sources');
+    const API_BASE = resolveApiBase();
+
+    function resolveApiBase() {
+      if (typeof window !== 'undefined' && typeof window.ARGUMENTAIRES_API_URL === 'string' && window.ARGUMENTAIRES_API_URL.trim() !== '') {
+        return window.ARGUMENTAIRES_API_URL.replace(/\/$/, '');
+      }
+      const host = window.location.hostname;
+      if (host === 'localhost' || host === '127.0.0.1') {
+        return '';
+      }
+      if (host.includes('gitlab.io')) {
+        return 'https://dev.workers-argumentaires.guiraud.workers.dev';
+      }
+      return 'https://workers-argumentaires.mehdi-guiraud.workers.dev';
+    }
+
+    function apiUrl(path) {
+      if (!API_BASE) {
+        return path;
+      }
+      return `${API_BASE}${path}`;
+    }
 
     async function loadData() {
       try {
-        const res = await fetch('/api/argumentaires');
+        const res = await fetch(apiUrl('/api/argumentaires'));
         if (!res.ok) throw new Error(`Statut ${res.status}`);
         const items = await res.json();
         if (!Array.isArray(items)) throw new Error('Format inattendu');
@@ -722,7 +744,7 @@
 
       submitBtn.disabled = true;
       try {
-        const res = await fetch('/api/argumentaires', {
+        const res = await fetch(apiUrl('/api/argumentaires'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ phrase, argumentaire: arg, sources })

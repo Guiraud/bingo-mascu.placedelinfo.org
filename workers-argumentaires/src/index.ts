@@ -4,12 +4,13 @@ interface Env {
 
 const ARGUMENTAIRES_KEY = "argumentaires.json";
 const ALLOWED_ORIGINS = new Set([
+  "https://bingo-mascu-placedelinfo-org-71e588.gitlab.io",
+  "https://guiraud.github.io",
   "https://bingo-mascu.mehdiguiraud.net",
   "https://guiraud.gitlab.io",
-  "https://guiraud.github.io",
   "http://localhost:8000",
-  "https://bingo-mascu-placedelinfo-org-71e588.gitlab.io",
-  "https://guiraud.github.io/bingo-mascu.placedelinfo.org/"
+  "http://127.0.0.1:8787",
+  "https://workers-argumentaires.mehdi-guiraud.workers.dev"
 ]);
 
 export default {

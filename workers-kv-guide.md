@@ -153,6 +153,7 @@ function allowOrigin(origin: string): string {
 }
 ```
 - Mets à jour `ALLOWED_ORIGINS` avec les URL autorisées (ex: GitHub Pages, GitLab Pages, localhost).
+- Mets aussi à jour les valeurs de secours dans `resolveApiBase` (`bdd.html`, `index.html`) pour pointer vers ton domaine Workers (prod et dev).
 - Si tu utilises JavaScript, supprime la déclaration `interface Env` et les types.
 - Le Worker enregistre le JSON complet sous la clé `argumentaires.json` et le renvoie.
 
