@@ -7,7 +7,9 @@ const ALLOWED_ORIGINS = new Set([
   "https://bingo-mascu.mehdiguiraud.net",
   "https://guiraud.gitlab.io",
   "https://guiraud.github.io",
-  "http://localhost:8000"
+  "http://localhost:8000",
+  "https://bingo-mascu-placedelinfo-org-71e588.gitlab.io",
+  "https://guiraud.github.io/bingo-mascu.placedelinfo.org/"
 ]);
 
 export default {
