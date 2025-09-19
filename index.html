@@ -663,7 +663,7 @@
 
     const WORKER_ENDPOINTS = Object.freeze({
       prod: 'https://workers-argumentaires.guiraud.workers.dev',
-      dev: 'https://dev.workers-argumentaires.guiraud.workers.dev'
+      dev: 'https://dev-workers-argumentaires.guiraud.workers.dev'
     });
 
     const API_BASE = resolveApiBase();
@@ -684,12 +684,12 @@
         return '';
       }
       if (host.endsWith('.workers.dev')) {
-        return '';
-      }
-      if (host.includes('gitlab.io')) {
         return WORKER_ENDPOINTS.dev;
       }
-      return WORKER_ENDPOINTS.prod;
+      if (host.includes('gitlab.io')) {
+        return WORKER_ENDPOINTS.prod;
+      }
+      return WORKER_ENDPOINTS.dev;
     }
 
     function sanitizeApiBase(raw) {

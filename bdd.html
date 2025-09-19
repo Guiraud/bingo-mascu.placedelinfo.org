@@ -628,12 +628,12 @@
         return '';
       }
       if (host.endsWith('.workers.dev')) {
-        return '';
-      }
-      if (host.includes('gitlab.io')) {
         return WORKER_ENDPOINTS.dev;
       }
-      return WORKER_ENDPOINTS.prod;
+      if (host.includes('gitlab.io')) {
+        return WORKER_ENDPOINTS.prod;
+      }
+      return WORKER_ENDPOINTS.dev;
     }
 
     function sanitizeApiBase(raw) {
