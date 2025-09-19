@@ -9,6 +9,8 @@ const STATIC_ALLOWED_ORIGINS = new Set(
     'https://guiraud.github.io',
     'https://guiraud.gitlab.io',
     'https://workers-argumentaires.guiraud.workers.dev',
+    'https://workers-argumentaires.mehdi-guiraud.workers.dev',
+    'https://workers-argumentaires-dev.mehdi-guiraud.workers.dev',
     'https://dev.workers-argumentaires.guiraud.workers.dev',
     'http://localhost:8000',
     'http://127.0.0.1:8787'
