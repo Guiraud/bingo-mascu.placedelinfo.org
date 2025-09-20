@@ -381,7 +381,7 @@
     {
       id: 'patriarcat',
       nom: 'Patriarcat',
-      description: 'Système social où le pouvoir politique, économique, religieux et familial est concentré entre les mains des hommes, reléguant les femmes à des rôles subordonnés.',
+      description: 'Système de domination qui attribue aux hommes le contrôle des sphères politiques, économiques, religieuses et familiales, tout en cantonnant les femmes aux rôles de soins et de reproduction. Il légitime l’infériorisation matérielle et symbolique des femmes et banalise les violences sexistes qui assurent le maintien de cette hiérarchie.',
       sources: [
         {
           titre: 'ONU Femmes – Mettre fin à la violence à l’égard des femmes',
@@ -392,7 +392,7 @@
     {
       id: 'androcentrisme',
       nom: 'Androcentrisme',
-      description: 'Mode de pensée qui érige le point de vue masculin en norme universelle et invisibilise les expériences féminines.',
+      description: 'Mode de pensée qui érige l’expérience masculine en référence universelle, reléguant celles des femmes au second plan. L’androcentrisme transforme les récits, médias ou politiques publiques en miroirs d’intérêts masculins, invisibilisant apports, besoins et savoirs féminins.',
       sources: [
         {
           titre: 'Pourquoi l’histoire a effacé les femmes – Histoire d’en parler',
@@ -403,7 +403,7 @@
     {
       id: 'misogynie',
       nom: 'Misogynie',
-      description: 'Mépris structurel envers les femmes se traduisant par des discriminations, de l’hostilité et des violences visant à maintenir leur infériorisation.',
+      description: 'Haîne et mépris structurels dirigés contre les femmes en tant que groupe, qui s’expriment par l’intimidation, les discriminations et des violences allant jusqu’au meurtre. La misogynie entretient l’idée qu’une place “naturelle” des femmes est l’obéissance et rend acceptable la domination masculine.',
       sources: [
         {
           titre: 'NousToutes – Comprendre les chiffres des violences sexistes',
@@ -414,7 +414,7 @@
     {
       id: 'sexisme',
       nom: 'Sexisme',
-      description: 'Ensemble de stéréotypes et de pratiques discriminatoires fondés sur le sexe ou le genre, hiérarchisant hommes et femmes.',
+      description: 'Ensemble de stéréotypes et de pratiques discriminatoires fondés sur le sexe ou le genre qui valorise l’“ordre masculin” et dévalorise le travail féminin. Le sexisme impose des scripts de comportement, un double standard moral et des carrières freinées qui reconduisent l’inégalité matérielle.',
       sources: [
         {
           titre: 'Sexisme — Wikipédia',
@@ -425,7 +425,7 @@
     {
       id: 'phallocratie',
       nom: 'Phallocratie',
-      description: 'Organisation patriarcale où l’autorité symbolique et institutionnelle reste monopolisée par les hommes.',
+      description: 'Organisation sociale où le pouvoir symbolique et institutionnel reste monopolisé par les hommes, du foyer à l’État. La phallocratie glorifie l’autorité masculine comme norme de légitimité et naturalise l’exclusion des femmes des espaces de décision.',
       sources: [
         {
           titre: 'Phallocratie — Wikipédia',
@@ -436,7 +436,7 @@
     {
       id: 'division-sexuee-travail',
       nom: 'Division sexuée du travail',
-      description: 'Répartition genrée des tâches qui cantonne les femmes aux activités domestiques ou peu valorisées et réserve les sphères techniques ou rémunératrices aux hommes.',
+      description: 'Répartition genrée des tâches qui associe les femmes au soin, au domestique et aux emplois sous-payés, tandis que les hommes se concentrent dans les secteurs techniques ou de prestige. Cette division invisibilise le travail reproductif féminin et justifie l’écart salarial persistant.',
       sources: [
         {
           titre: 'Division sexuelle du travail — Wikipédia',
@@ -447,7 +447,7 @@
     {
       id: 'loi-salique',
       nom: 'Loi salique',
-      description: 'Principe successoral qui exclut les femmes de la transmission du pouvoir politique, en réservant la couronne aux héritiers masculins.',
+      description: 'Principe successoral historique qui interdit aux femmes d’hériter du trône ou de transmettre un droit dynastique, assignant la souveraineté aux lignées masculines. Cette exclusion a servi de modèle pour écarter les femmes des responsabilités politiques jusqu’à l’époque moderne.',
       sources: [
         {
           titre: 'Loi salique — Wikipédia',
@@ -458,7 +458,7 @@
     {
       id: 'code-napoleon',
       nom: 'Code Napoléon',
-      description: 'Le Code civil napoléonien plaçait les femmes mariées sous la tutelle de leur époux, les privant d’autonomie juridique et économique.',
+      description: 'Le Code civil napoléonien a légalement placé l’épouse sous tutelle maritale : incapacité juridique, impossibilité de signer un contrat, d’administrer ses biens ou de percevoir son salaire sans l’accord du mari. Ce dispositif a fixé l’infériorité civile des femmes pendant plus d’un siècle.',
       sources: [
         {
           titre: 'Code civil (France) – Place de la femme',
@@ -469,7 +469,7 @@
     {
       id: 'tutelle-masculine',
       nom: 'Tutelle masculine',
-      description: 'Régime juridique qui impose à chaque femme la supervision d’un tuteur masculin pour voyager, travailler ou accéder à certains droits.',
+      description: 'Régime de tutelle qui oblige les femmes à obtenir l’autorisation d’un père, mari ou fils adulte pour voyager, travailler ou accéder à la santé, comme en Arabie saoudite jusqu’en 2019. Il maintient les femmes dans un statut de mineures à vie et restreint drastiquement leurs libertés fondamentales.',
       sources: [
         {
           titre: 'HRW – Arabie saoudite : les femmes sous l’emprise de la tutelle masculine',
@@ -480,7 +480,7 @@
     {
       id: 'exclusion-suffrage',
       nom: 'Exclusion du suffrage',
-      description: 'Pendant des siècles, les femmes ont été privées du droit de vote et d’éligibilité, limitant leur influence sur les décisions publiques.',
+      description: 'Exclusion systématique des femmes de la citoyenneté politique : le suffrage “universel” instauré au XIXe siècle ne concernait que les hommes et les femmes françaises n’ont obtenu le vote qu’en 1944. L’absence de représentation féminine a retardé toute prise en compte de leurs droits civils et sociaux.',
       sources: [
         {
           titre: 'Oxfam France – Droit de vote des femmes',
@@ -491,7 +491,7 @@
     {
       id: 'chasses-sorcieres',
       nom: 'Chasses aux sorcières',
-      description: 'Persécutions ayant éliminé des dizaines de milliers de femmes accusées de sorcellerie, servant à discipliner et marginaliser les femmes autonomes.',
+      description: 'Entre les XVe et XVIIe siècles, des dizaines de milliers de femmes accusées de sorcellerie ont été torturées ou exécutées, ciblant sages-femmes, guérisseuses ou femmes indépendantes. Cette répression a servi à imposer le contrôle masculin du savoir médical et à renvoyer les femmes au foyer.',
       sources: [
         {
           titre: 'Femmes de droit – Sorcières',
@@ -502,7 +502,7 @@
     {
       id: 'polygynie',
       nom: 'Polygynie',
-      description: 'Forme de mariage autorisant un homme à avoir plusieurs épouses simultanément, consacrant une hiérarchie conjugale défavorable aux femmes.',
+      description: 'Pratique matrimoniale qui autorise un homme à épouser plusieurs femmes, créant une hiérarchie interne où les épouses sont interchangeables et en concurrence. La polygynie concentre les ressources et la descendance autour d’un patriarche et confisque l’autonomie sexuelle et économique des femmes.',
       sources: [
         {
           titre: 'Polygynie — Wikipédia',
@@ -513,7 +513,7 @@
     {
       id: 'patronymie',
       nom: 'Patronymie obligatoire',
-      description: 'Imposition du nom de famille paternel qui efface la filiation maternelle et prolonge la primauté symbolique masculine.',
+      description: 'Règle de filiation qui impose le nom du père et efface la lignée maternelle, résidu de la loi salique modernisée. Malgré les réformes récentes, la majorité des enfants portent encore uniquement le patronyme paternel, signe de la persistance de la primauté symbolique masculine.',
       sources: [
         {
           titre: 'Le Monde – Depuis 2002, le nom de famille a remplacé le nom patronymique',
@@ -524,7 +524,7 @@
     {
       id: 'langue-masculine',
       nom: 'Langue à générique masculin',
-      description: 'Règle grammaticale où le masculin “l’emporte” et se substitue au neutre, invisibilisant les femmes dans le langage courant.',
+      description: 'Norme grammaticale édictée au XVIIe siècle stipulant que “le masculin l’emporte”, transformant le masculin en pseudo-neutre. Ce biais linguistique invisibilise les femmes dans les discours publics et alimente la résistance à la féminisation des titres ou à l’écriture inclusive.',
       sources: [
         {
           titre: 'Gazette des femmes – Quand le masculin l’emporte sur le féminin',
@@ -535,7 +535,7 @@
     {
       id: 'effacement-femmes',
       nom: 'Effacement des femmes',
-      description: 'Pratiques sociales et symboliques qui retirent les femmes de l’espace public, de l’histoire ou des savoirs collectifs.',
+      description: 'Processus d’effacement des contributions féminines dans l’histoire, les arts, la toponymie ou la science : les biographies masculines saturent les manuels et monuments, tandis que les pionnières sont rarement citées. Ce vide mémoriel entretient l’idée que les femmes n’ont pas bâti la société.',
       sources: [
         {
           titre: 'Effacement des femmes — Wikipédia',
@@ -546,7 +546,7 @@
     {
       id: 'effet-matilda',
       nom: 'Effet Matilda',
-      description: 'Déni ou appropriation des découvertes scientifiques faites par des femmes au profit de leurs collègues masculins.',
+      description: 'Mécanisme par lequel des découvertes réalisées par des scientifiques femmes sont attribuées à leurs collègues masculins, comme Rosalind Franklin pour l’ADN ou Jocelyn Bell pour les pulsars. L’effet Matilda retire reconnaissance, financements et carrières aux chercheuses, nourrissant le stéréotype du génie masculin.',
       sources: [
         {
           titre: 'Effet Matilda — Wikipédia',
@@ -557,7 +557,7 @@
     {
       id: 'regard-masculin',
       nom: 'Regard masculin',
-      description: 'Concept qui montre comment la culture visuelle dominante centre le désir masculin et réduit les personnages féminins à des objets.',
+      description: 'Concept analysé par Laura Mulvey : la caméra et le scénario traditionnels épousent le désir d’un spectateur masculin hétérosexuel. Les héroïnes deviennent des objets à contempler, ce qui légitime la sexualisation forcée et marginalise les récits centrés sur les regards féminins.',
       sources: [
         {
           titre: 'Regard masculin — Wikipédia',
@@ -568,7 +568,7 @@
     {
       id: 'test-bechdel',
       nom: 'Test de Bechdel',
-      description: 'Indicateur révélant l’invisibilisation des personnages féminins lorsque deux femmes ne parlent jamais ensemble d’autre chose que d’un homme.',
+      description: 'Test narratif qui interroge la présence de deux personnages féminins nommés ayant une conversation qui ne concerne pas un homme. La majorité des films grand public échouent à cette vérification, révélant que les femmes restent souvent des accessoires dans les intrigues.',
       sources: [
         {
           titre: 'Test de Bechdel — Wikipédia',
@@ -579,7 +579,7 @@
     {
       id: 'plafond-verre',
       nom: 'Plafond de verre',
-      description: 'Barrières invisibles qui freinent l’accès des femmes aux postes de direction malgré leurs compétences.',
+      description: 'Barrières invisibles qui bloquent l’accès des femmes aux postes les mieux rémunérés ou les plus décisionnels : cooptation masculine, stéréotypes sur le leadership et pénalisation de la maternité. En France, les cadres masculins perçoivent encore davantage de primes et se voient confier les équipes les plus importantes.',
       sources: [
         {
           titre: 'Novethic – Plafond de verre',
@@ -590,7 +590,7 @@
     {
       id: 'inegalites-salariales',
       nom: 'Inégalités salariales',
-      description: 'À poste et compétences égales, les femmes perçoivent encore des rémunérations inférieures à celles des hommes.',
+      description: 'Même à poste équivalent, les salariées touchent en moyenne un salaire fixe et variable inférieur à celui de leurs collègues masculins. L’écart médian se creuse avec l’âge et les promotions, consolidant une dépendance économique qui rejaillit sur la retraite et l’accès au patrimoine.',
       sources: [
         {
           titre: 'APEC – Inégalités salariales, plafond de verre, sexisme',
@@ -601,7 +601,7 @@
     {
       id: 'charge-domestique',
       nom: 'Charge domestique invisible',
-      description: 'Travail domestique et charge mentale demeurant majoritairement assumés par les femmes, même lorsqu’elles occupent un emploi rémunéré.',
+      description: 'Les femmes réalisent toujours l’essentiel du travail domestique, logistique et émotionnel du foyer, même lorsqu’elles occupent un emploi à temps plein. Cette “double journée” grignote leur temps libre, limite leur progression professionnelle et demeure largement invisible dans les indicateurs économiques.',
       sources: [
         {
           titre: 'NousToutes – Comprendre les chiffres des violences sexistes',
@@ -612,7 +612,7 @@
     {
       id: 'sous-representation-mediatique',
       nom: 'Sous-représentation médiatique',
-      description: 'Les femmes restent minoritaires parmi les personnes citées ou expertes dans les médias d’information.',
+      description: 'Dans les médias d’information, les femmes représentent moins d’un tiers des personnes mentionnées ou invitées comme expertes, et leur parole reste cantonnée aux rubriques “société” ou “vie quotidienne”. Cette sous-représentation renforce l’idée que l’autorité publique est masculine et prive l’espace médiatique de points de vue féminins.',
       sources: [
         {
           titre: 'Youmatter – Inégalités hommes-femmes dans les médias',
@@ -759,6 +759,40 @@
     setDetails(html, { persist: !transient });
   }
 
+  function addGlitterFrame(slot) {
+    const starsContainer = document.createElement('div');
+    starsContainer.className = 'board-stars';
+    const STAR_COUNT = 80;
+    for (let i = 0; i < STAR_COUNT; i++) {
+      const star = document.createElement('span');
+      star.className = 'board-star';
+      const side = Math.floor(Math.random() * 4);
+      const offset = Math.random() * 100;
+      switch (side) {
+        case 0:
+          star.style.top = '-8px';
+          star.style.left = `${offset}%`;
+          break;
+        case 1:
+          star.style.right = '-8px';
+          star.style.top = `${offset}%`;
+          break;
+        case 2:
+          star.style.bottom = '-8px';
+          star.style.left = `${offset}%`;
+          break;
+        default:
+          star.style.left = '-8px';
+          star.style.top = `${offset}%`;
+          break;
+      }
+      star.style.animationDelay = `${(Math.random() * 2).toFixed(2)}s`;
+      star.style.animationDuration = `${(1.5 + Math.random()).toFixed(2)}s`;
+      starsContainer.appendChild(star);
+    }
+    slot.appendChild(starsContainer);
+  }
+
   function rngShuffle(arr) {
     const a = arr.slice();
     for (let i = a.length - 1; i > 0; i--) {
@@ -800,8 +834,12 @@
       detailSlotElement = document.createElement('div');
       detailSlotElement.className = 'board-detail-slot';
       detailSlotElement.style.gridArea = detailConfig.area;
+      addGlitterFrame(detailSlotElement);
+      const detailWrapper = document.createElement('div');
+      detailWrapper.className = 'board-detail-wrapper';
+      detailWrapper.appendChild(detailsEl);
+      detailSlotElement.appendChild(detailWrapper);
       boardEl.appendChild(detailSlotElement);
-      detailSlotElement.appendChild(detailsEl);
       detailsEl.classList.add('board-details');
     }
 
