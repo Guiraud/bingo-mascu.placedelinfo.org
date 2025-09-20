@@ -799,6 +799,7 @@
           cell.dataset.cellType = 'phenomenon';
           cell.dataset.phenomenonId = phenomenon.id;
           cell.__phenomenon = phenomenon;
+          cell.classList.add('phenomenon-cell');
           cell.addEventListener('mouseenter', () => renderPhenomenonDetails(phenomenon, { transient: true }));
           cell.addEventListener('mouseleave', restoreLastDetails);
         } else {
