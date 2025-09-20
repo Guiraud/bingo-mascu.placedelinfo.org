@@ -376,6 +376,253 @@
       ]
     }
   ];
+
+  const PATRIARCHAL_PHENOMENA = [
+    {
+      id: 'patriarcat',
+      nom: 'Patriarcat',
+      description: 'Système social où le pouvoir politique, économique, religieux et familial est concentré entre les mains des hommes, reléguant les femmes à des rôles subordonnés.',
+      sources: [
+        {
+          titre: 'ONU Femmes – Mettre fin à la violence à l’égard des femmes',
+          url: 'https://www.unwomen.org/fr/articles/faits-et-chiffres/faits-et-chiffres-mettre-fin-a-la-violence-a-legard-des-femmes'
+        }
+      ]
+    },
+    {
+      id: 'androcentrisme',
+      nom: 'Androcentrisme',
+      description: 'Mode de pensée qui érige le point de vue masculin en norme universelle et invisibilise les expériences féminines.',
+      sources: [
+        {
+          titre: 'Pourquoi l’histoire a effacé les femmes – Histoire d’en parler',
+          url: 'https://www.histoiredenparler.com/post/pourquoi-l-histoire-a-effac%C3%A9-les-femmes-titiou-lecoq'
+        }
+      ]
+    },
+    {
+      id: 'misogynie',
+      nom: 'Misogynie',
+      description: 'Mépris structurel envers les femmes se traduisant par des discriminations, de l’hostilité et des violences visant à maintenir leur infériorisation.',
+      sources: [
+        {
+          titre: 'NousToutes – Comprendre les chiffres des violences sexistes',
+          url: 'https://www.noustoutes.org/comprendre-les-chiffres/'
+        }
+      ]
+    },
+    {
+      id: 'sexisme',
+      nom: 'Sexisme',
+      description: 'Ensemble de stéréotypes et de pratiques discriminatoires fondés sur le sexe ou le genre, hiérarchisant hommes et femmes.',
+      sources: [
+        {
+          titre: 'Sexisme — Wikipédia',
+          url: 'https://fr.wikipedia.org/wiki/Sexisme'
+        }
+      ]
+    },
+    {
+      id: 'phallocratie',
+      nom: 'Phallocratie',
+      description: 'Organisation patriarcale où l’autorité symbolique et institutionnelle reste monopolisée par les hommes.',
+      sources: [
+        {
+          titre: 'Phallocratie — Wikipédia',
+          url: 'https://fr.wikipedia.org/wiki/Phallocratie'
+        }
+      ]
+    },
+    {
+      id: 'division-sexuee-travail',
+      nom: 'Division sexuée du travail',
+      description: 'Répartition genrée des tâches qui cantonne les femmes aux activités domestiques ou peu valorisées et réserve les sphères techniques ou rémunératrices aux hommes.',
+      sources: [
+        {
+          titre: 'Division sexuelle du travail — Wikipédia',
+          url: 'https://fr.wikipedia.org/wiki/Division_sexuelle_du_travail'
+        }
+      ]
+    },
+    {
+      id: 'loi-salique',
+      nom: 'Loi salique',
+      description: 'Principe successoral qui exclut les femmes de la transmission du pouvoir politique, en réservant la couronne aux héritiers masculins.',
+      sources: [
+        {
+          titre: 'Loi salique — Wikipédia',
+          url: 'https://fr.wikipedia.org/wiki/Loi_salique'
+        }
+      ]
+    },
+    {
+      id: 'code-napoleon',
+      nom: 'Code Napoléon',
+      description: 'Le Code civil napoléonien plaçait les femmes mariées sous la tutelle de leur époux, les privant d’autonomie juridique et économique.',
+      sources: [
+        {
+          titre: 'Code civil (France) – Place de la femme',
+          url: 'https://fr.wikipedia.org/wiki/Code_civil_(France)#La_place_de_la_femme'
+        }
+      ]
+    },
+    {
+      id: 'tutelle-masculine',
+      nom: 'Tutelle masculine',
+      description: 'Régime juridique qui impose à chaque femme la supervision d’un tuteur masculin pour voyager, travailler ou accéder à certains droits.',
+      sources: [
+        {
+          titre: 'HRW – Arabie saoudite : les femmes sous l’emprise de la tutelle masculine',
+          url: 'https://www.hrw.org/fr/news/2016/07/17/arabie-saoudite-les-femmes-sous-lemprise-de-la-tutelle-masculine'
+        }
+      ]
+    },
+    {
+      id: 'exclusion-suffrage',
+      nom: 'Exclusion du suffrage',
+      description: 'Pendant des siècles, les femmes ont été privées du droit de vote et d’éligibilité, limitant leur influence sur les décisions publiques.',
+      sources: [
+        {
+          titre: 'Oxfam France – Droit de vote des femmes',
+          url: 'https://www.oxfamfrance.org/inegalites-femmes-hommes/droit-de-vote-des-femmes/'
+        }
+      ]
+    },
+    {
+      id: 'chasses-sorcieres',
+      nom: 'Chasses aux sorcières',
+      description: 'Persécutions ayant éliminé des dizaines de milliers de femmes accusées de sorcellerie, servant à discipliner et marginaliser les femmes autonomes.',
+      sources: [
+        {
+          titre: 'Femmes de droit – Sorcières',
+          url: 'https://femmesdedroit.be/informations-juridiques/abecedaire/sorcieres/'
+        }
+      ]
+    },
+    {
+      id: 'polygynie',
+      nom: 'Polygynie',
+      description: 'Forme de mariage autorisant un homme à avoir plusieurs épouses simultanément, consacrant une hiérarchie conjugale défavorable aux femmes.',
+      sources: [
+        {
+          titre: 'Polygynie — Wikipédia',
+          url: 'https://fr.wikipedia.org/wiki/Polygynie'
+        }
+      ]
+    },
+    {
+      id: 'patronymie',
+      nom: 'Patronymie obligatoire',
+      description: 'Imposition du nom de famille paternel qui efface la filiation maternelle et prolonge la primauté symbolique masculine.',
+      sources: [
+        {
+          titre: 'Le Monde – Depuis 2002, le nom de famille a remplacé le nom patronymique',
+          url: 'https://www.lemonde.fr/societe/article/2010/01/06/depuis-2002-le-nom-de-famille-a-remplace-le-nom-patronymique_1288080_3224.html'
+        }
+      ]
+    },
+    {
+      id: 'langue-masculine',
+      nom: 'Langue à générique masculin',
+      description: 'Règle grammaticale où le masculin “l’emporte” et se substitue au neutre, invisibilisant les femmes dans le langage courant.',
+      sources: [
+        {
+          titre: 'Gazette des femmes – Quand le masculin l’emporte sur le féminin',
+          url: 'https://gazettedesfemmes.ca/13898/quand-le-masculin-lemporte-sur-le-feminin/'
+        }
+      ]
+    },
+    {
+      id: 'effacement-femmes',
+      nom: 'Effacement des femmes',
+      description: 'Pratiques sociales et symboliques qui retirent les femmes de l’espace public, de l’histoire ou des savoirs collectifs.',
+      sources: [
+        {
+          titre: 'Effacement des femmes — Wikipédia',
+          url: 'https://fr.wikipedia.org/wiki/Effacement_des_femmes'
+        }
+      ]
+    },
+    {
+      id: 'effet-matilda',
+      nom: 'Effet Matilda',
+      description: 'Déni ou appropriation des découvertes scientifiques faites par des femmes au profit de leurs collègues masculins.',
+      sources: [
+        {
+          titre: 'Effet Matilda — Wikipédia',
+          url: 'https://fr.wikipedia.org/wiki/Effet_Matilda'
+        }
+      ]
+    },
+    {
+      id: 'regard-masculin',
+      nom: 'Regard masculin',
+      description: 'Concept qui montre comment la culture visuelle dominante centre le désir masculin et réduit les personnages féminins à des objets.',
+      sources: [
+        {
+          titre: 'Regard masculin — Wikipédia',
+          url: 'https://fr.wikipedia.org/wiki/Regard_masculin'
+        }
+      ]
+    },
+    {
+      id: 'test-bechdel',
+      nom: 'Test de Bechdel',
+      description: 'Indicateur révélant l’invisibilisation des personnages féminins lorsque deux femmes ne parlent jamais ensemble d’autre chose que d’un homme.',
+      sources: [
+        {
+          titre: 'Test de Bechdel — Wikipédia',
+          url: 'https://fr.wikipedia.org/wiki/Test_de_Bechdel'
+        }
+      ]
+    },
+    {
+      id: 'plafond-verre',
+      nom: 'Plafond de verre',
+      description: 'Barrières invisibles qui freinent l’accès des femmes aux postes de direction malgré leurs compétences.',
+      sources: [
+        {
+          titre: 'Novethic – Plafond de verre',
+          url: 'https://www.novethic.fr/lexique/detail/plafond-de-verre.html'
+        }
+      ]
+    },
+    {
+      id: 'inegalites-salariales',
+      nom: 'Inégalités salariales',
+      description: 'À poste et compétences égales, les femmes perçoivent encore des rémunérations inférieures à celles des hommes.',
+      sources: [
+        {
+          titre: 'APEC – Inégalités salariales, plafond de verre, sexisme',
+          url: 'http://corporate.apec.fr/home/actus-medias/toutes-nos-actualites/inegalites-salariales-plafond-de-verre-sexisme-les-carrieres-des-femmes-cadres-toujours-penalisees.html'
+        }
+      ]
+    },
+    {
+      id: 'charge-domestique',
+      nom: 'Charge domestique invisible',
+      description: 'Travail domestique et charge mentale demeurant majoritairement assumés par les femmes, même lorsqu’elles occupent un emploi rémunéré.',
+      sources: [
+        {
+          titre: 'NousToutes – Comprendre les chiffres des violences sexistes',
+          url: 'https://www.noustoutes.org/comprendre-les-chiffres/'
+        }
+      ]
+    },
+    {
+      id: 'sous-representation-mediatique',
+      nom: 'Sous-représentation médiatique',
+      description: 'Les femmes restent minoritaires parmi les personnes citées ou expertes dans les médias d’information.',
+      sources: [
+        {
+          titre: 'Youmatter – Inégalités hommes-femmes dans les médias',
+          url: 'https://youmatter.world/fr/categorie-societe/inegalites-hommes-femmes-medias-chiffres/'
+        }
+      ]
+    }
+  ];
+
+  const PHENOMENA_BY_ID = new Map(PATRIARCHAL_PHENOMENA.map(item => [item.id, item]));
   let PHRASES = FALLBACK_DATA.map(item => item.phrase);
 
   let ARGUMENTAIRES = Object.fromEntries(
@@ -455,7 +702,47 @@
   const contextInput = document.getElementById('contextInput');
 
   let size = parseInt(sizeSel.value, 10);
-  let order = [];
+  let lastDetailHTML = '';
+  let lastBingoText = '';
+
+  function randomBetween(min, max) {
+    const low = Math.ceil(min);
+    const high = Math.floor(max);
+    if (high < low) return low;
+    return Math.floor(Math.random() * (high - low + 1)) + low;
+  }
+
+  function setDetails(html, { persist = true } = {}) {
+    detailsEl.innerHTML = html;
+    if (persist) {
+      lastDetailHTML = html;
+    }
+  }
+
+  function renderDefaultDetails() {
+    setDetails('<h2>Argumentaire</h2><p>Sélectionnez une case pour voir l\'explication et la contre-argumentation basée sur la littérature et études scientifiques.</p>');
+  }
+
+  function restoreLastDetails() {
+    if (lastDetailHTML) {
+      detailsEl.innerHTML = lastDetailHTML;
+    } else {
+      renderDefaultDetails();
+    }
+  }
+
+  function renderPhenomenonDetails(phenomenon, { transient = false } = {}) {
+    if (!phenomenon) return;
+    const list = (phenomenon.sources || []).map(src => {
+      const titre = src.titre || 'Source';
+      const auteur = src.auteur ? ` (${src.auteur})` : '';
+      const link = src.url ? `<a href="${src.url}" target="_blank" rel="noopener">${titre}</a>` : titre;
+      return `<li>${link}${auteur}</li>`;
+    }).join('');
+    const sourcesHtml = list ? `<h3>Sources</h3><ul>${list}</ul>` : '';
+    const html = `<h2>${phenomenon.nom}</h2><p>${phenomenon.description}</p>${sourcesHtml}`;
+    setDetails(html, { persist: !transient });
+  }
 
   function rngShuffle(arr) {
     const a = arr.slice();
@@ -477,9 +764,22 @@
     const useFree = false;
     const total = size * size;
     const picked = takePhrases(total, useFree);
-    order = picked.slice();
+    renderDefaultDetails();
     boardEl.innerHTML = '';
     boardEl.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+
+    const rawMin = Math.min(10, Math.max(1, Math.floor(total / 2)));
+    const rawMax = Math.min(15, total);
+    const minCount = Math.max(1, Math.min(rawMin, rawMax));
+    const maxCount = Math.max(rawMin, rawMax);
+    const desired = Math.min(randomBetween(minCount, maxCount), PATRIARCHAL_PHENOMENA.length, total);
+    const indicesPool = rngShuffle(Array.from({ length: total }, (_, i) => i));
+    const selectedIndices = new Set(indicesPool.slice(0, desired));
+    const selectedPhenomena = rngShuffle(PATRIARCHAL_PHENOMENA).slice(0, selectedIndices.size);
+    const phenomenaByIndex = new Map();
+    Array.from(selectedIndices).forEach((cellIndex, idx) => {
+      phenomenaByIndex.set(cellIndex, selectedPhenomena[idx]);
+    });
 
     let idx = 0;
     for (let r = 0; r < size; r++) {
@@ -492,12 +792,24 @@
         cell.setAttribute('aria-pressed', isCenter ? 'true' : 'false');
         const label = document.createElement('div');
         label.className = 'label';
-        label.textContent = isCenter ? 'Case libre' : picked[idx++];
+        const cellIndex = indexOf(r, c);
+        const phenomenon = phenomenaByIndex.get(cellIndex) || null;
+        if (phenomenon) {
+          label.textContent = phenomenon.nom;
+          cell.dataset.cellType = 'phenomenon';
+          cell.dataset.phenomenonId = phenomenon.id;
+          cell.__phenomenon = phenomenon;
+          cell.addEventListener('mouseenter', () => renderPhenomenonDetails(phenomenon, { transient: true }));
+          cell.addEventListener('mouseleave', restoreLastDetails);
+        } else {
+          label.textContent = isCenter ? 'Case libre' : picked[idx++];
+        }
         cell.appendChild(label);
         cell.addEventListener('click', () => toggleCell(cell));
         boardEl.appendChild(cell);
       }
     }
+    lastBingoText = 'Pas de bingo';
     updateStats();
   }
 
@@ -508,8 +820,18 @@
     checkBingo();
     updateStats();
 
+    if (!pressed) return;
+
+    if (cell.dataset.cellType === 'phenomenon') {
+      const phenomenon = PHENOMENA_BY_ID.get(cell.dataset.phenomenonId) || cell.__phenomenon;
+      if (phenomenon) {
+        renderPhenomenonDetails(phenomenon);
+        return;
+      }
+    }
+
     const phrase = cell.textContent.trim();
-    if (pressed) showArgumentaire(phrase);
+    showArgumentaire(phrase);
   }
 
   function showArgumentaire(phrase) {
@@ -523,7 +845,7 @@
           return `<li>${url}${auteur}</li>`;
         }).join('')}</ul>`
       : '';
-    detailsEl.innerHTML = `<h2>${phrase}</h2><p>${arg}</p>${sourcesHtml}<p><strong>Contexte :</strong> ${contextInput.value || 'non précisé'}</p>`;
+    setDetails(`<h2>${phrase}</h2><p>${arg}</p>${sourcesHtml}<p><strong>Contexte :</strong> ${contextInput.value || 'non précisé'}</p>`);
   }
 
   function gridCells() {
@@ -545,8 +867,9 @@
       el.classList.remove('bingo');
       el.setAttribute('aria-pressed', el.classList.contains('marked') ? 'true' : 'false');
     });
+    lastBingoText = 'Pas de bingo';
     updateStats();
-    detailsEl.innerHTML = `<h2>Argumentaire</h2><p>Sélectionnez une case pour voir l'explication et la contre-argumentation basée sur la littérature et études scientifiques.</p>`;
+    renderDefaultDetails();
   }
 
   function checkBingo() {
@@ -566,15 +889,18 @@
         line.forEach(([r,c]) => cells[indexOf(r,c)].classList.add('bingo'));
       }
     }
-    statsEl.textContent = bingoCount > 0 ? `Bingo: ${bingoCount} ligne${bingoCount>1?'s':''}` : 'Pas de bingo';
+    lastBingoText = bingoCount > 0 ? `Bingo: ${bingoCount} ligne${bingoCount>1?'s':''}` : 'Pas de bingo';
   }
 
   function updateStats() {
     const total = size * size;
     const marked = gridCells().filter(x => x.classList.contains('marked')).length;
     const pct = Math.round(marked * 100 / total);
-    const extra = statsEl.textContent ? ` • ${statsEl.textContent}` : '';
-    statsEl.textContent = `${marked}/${total} cochées • ${pct}%${extra.includes('Bingo')? ' • ' + extra : ''}`;
+    const parts = [`${marked}/${total} cochées`, `${pct}%`];
+    if (lastBingoText) {
+      parts.push(lastBingoText);
+    }
+    statsEl.textContent = parts.join(' • ');
   }
 
   function copyList() {
