@@ -48,7 +48,11 @@
 body {
   margin:0;
   font-family: system-ui, sans-serif;
-  background: radial-gradient(1200px 800px at 50% -10%, #3D144D, #4B1F58) fixed;
+  background-color: #4B1F58;
+  background-image: radial-gradient(1200px 800px at 50% -10%, #3D144D, #4B1F58 75%, #3D144D 120%);
+  background-repeat: no-repeat;
+  background-size: 1600px 1200px;
+  background-position: center top;
   color: var(--ink);
 }
 a {
@@ -254,6 +258,7 @@ input[type="text"] { cursor:text; min-width: 180px }
     0 0 26px rgba(245,198,33,0.28);
   overflow: hidden;
   padding: 16px;
+  background-color: #1a0b26;
 }
 .board-detail-wrapper {
   position: relative;
@@ -261,7 +266,7 @@ input[type="text"] { cursor:text; min-width: 180px }
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: rgba(15,4,24,0.7);
+  background: rgba(25, 9, 41, 0.82);
   border-radius: 14px;
   padding: 18px;
   backdrop-filter: blur(6px);
