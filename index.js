@@ -695,6 +695,8 @@
   const boardEl = document.getElementById('board');
   const statsEl = document.getElementById('stats');
   const detailsEl = document.getElementById('details');
+  const detailsHome = detailsEl.parentElement;
+  const detailsHomeNextSibling = detailsEl.nextElementSibling;
   const newBtn = document.getElementById('new');
   const clearBtn = document.getElementById('clear');
   const copyBtn = document.getElementById('copy');
@@ -704,12 +706,25 @@
   let size = parseInt(sizeSel.value, 10);
   let lastDetailHTML = '';
   let lastBingoText = '';
+  let boardMatrix = [];
+  let playableCellCount = size * size;
 
   function randomBetween(min, max) {
     const low = Math.ceil(min);
     const high = Math.floor(max);
     if (high < low) return low;
     return Math.floor(Math.random() * (high - low + 1)) + low;
+  }
+
+  function moveDetailsHome() {
+    detailsEl.classList.remove('board-details');
+    if (detailsEl.parentElement !== detailsHome) {
+      if (detailsHomeNextSibling && detailsHomeNextSibling.parentElement === detailsHome) {
+        detailsHome.insertBefore(detailsEl, detailsHomeNextSibling);
+      } else {
+        detailsHome.appendChild(detailsEl);
+      }
+    }
   }
 
   function setDetails(html, { persist = true } = {}) {
@@ -762,38 +777,61 @@
   function buildBoard() {
     size = parseInt(sizeSel.value, 10);
     const useFree = false;
-    const total = size * size;
-    const picked = takePhrases(total, useFree);
+    const totalCells = size * size;
+    const detailSlotCount = size === 5 ? 3 : 0;
+    const availableSlots = totalCells - detailSlotCount;
+    playableCellCount = availableSlots;
+    const picked = takePhrases(availableSlots, useFree);
     renderDefaultDetails();
+    moveDetailsHome();
     boardEl.innerHTML = '';
     boardEl.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+    boardMatrix = Array.from({ length: size }, () => Array(size).fill(null));
 
-    const rawMin = Math.min(10, Math.max(1, Math.floor(total / 2)));
-    const rawMax = Math.min(15, total);
-    const minCount = Math.max(1, Math.min(rawMin, rawMax));
-    const maxCount = Math.max(rawMin, rawMax);
-    const desired = Math.min(randomBetween(minCount, maxCount), PATRIARCHAL_PHENOMENA.length, total);
-    const indicesPool = rngShuffle(Array.from({ length: total }, (_, i) => i));
-    const selectedIndices = new Set(indicesPool.slice(0, desired));
+    const isFive = size === 5;
+    let detailSlotElement = null;
+    if (isFive) {
+      detailSlotElement = document.createElement('div');
+      detailSlotElement.className = 'board-detail-slot';
+      detailSlotElement.style.gridRow = '2 / span 3';
+      detailSlotElement.style.gridColumn = '3';
+      boardEl.appendChild(detailSlotElement);
+      detailSlotElement.appendChild(detailsEl);
+      detailsEl.classList.add('board-details');
+    }
+
+    const detailSkip = isFive ? new Set(['1-2', '2-2', '3-2']) : null;
+    const phenMaxBase = Math.min(6, availableSlots);
+    const phenMinBase = Math.min(3, availableSlots);
+    const phenMin = phenMaxBase > 0 ? Math.max(1, Math.min(phenMinBase, phenMaxBase)) : 0;
+    const phenMax = phenMaxBase;
+    const desiredPhenomenaCount = phenMax > 0 ? Math.min(randomBetween(phenMin, phenMax), PATRIARCHAL_PHENOMENA.length) : 0;
+    const indicesPool = rngShuffle(Array.from({ length: availableSlots }, (_, i) => i));
+    const selectedIndices = new Set(indicesPool.slice(0, desiredPhenomenaCount));
     const selectedPhenomena = rngShuffle(PATRIARCHAL_PHENOMENA).slice(0, selectedIndices.size);
     const phenomenaByIndex = new Map();
-    Array.from(selectedIndices).forEach((cellIndex, idx) => {
-      phenomenaByIndex.set(cellIndex, selectedPhenomena[idx]);
+    Array.from(selectedIndices).forEach((slotIdx, idx) => {
+      phenomenaByIndex.set(slotIdx, selectedPhenomena[idx]);
     });
 
-    let idx = 0;
+    let slotIndex = 0;
+    let phraseIndex = 0;
     for (let r = 0; r < size; r++) {
       for (let c = 0; c < size; c++) {
-        const isCenter = useFree && r === Math.floor(size/2) && c === Math.floor(size/2);
+        if (detailSkip && detailSkip.has(`${r}-${c}`)) {
+          continue;
+        }
+        const isCenter = useFree && r === Math.floor(size / 2) && c === Math.floor(size / 2);
         const cell = document.createElement('button');
         cell.type = 'button';
         cell.className = 'cell' + (isCenter ? ' free marked' : '');
         cell.setAttribute('role', 'gridcell');
         cell.setAttribute('aria-pressed', isCenter ? 'true' : 'false');
+        cell.style.gridRow = `${r + 1}`;
+        cell.style.gridColumn = `${c + 1}`;
         const label = document.createElement('div');
         label.className = 'label';
-        const cellIndex = indexOf(r, c);
-        const phenomenon = phenomenaByIndex.get(cellIndex) || null;
+        const phenomenon = phenomenaByIndex.get(slotIndex) || null;
         if (phenomenon) {
           label.textContent = phenomenon.nom;
           cell.dataset.cellType = 'phenomenon';
@@ -803,13 +841,18 @@
           cell.addEventListener('mouseenter', () => renderPhenomenonDetails(phenomenon, { transient: true }));
           cell.addEventListener('mouseleave', restoreLastDetails);
         } else {
-          label.textContent = isCenter ? 'Case libre' : picked[idx++];
+          label.textContent = isCenter ? 'Case libre' : picked[phraseIndex++];
         }
         cell.appendChild(label);
         cell.addEventListener('click', () => toggleCell(cell));
         boardEl.appendChild(cell);
+        boardMatrix[r][c] = cell;
+        slotIndex++;
       }
     }
+
+    playableCellCount = slotIndex;
+
     lastBingoText = 'Pas de bingo';
     updateStats();
   }
@@ -850,16 +893,12 @@
   }
 
   function gridCells() {
-    return Array.from(boardEl.querySelectorAll('.cell'));
-  }
-
-  function indexOf(r, c) {
-    return r * size + c;
+    return boardMatrix.flat().filter(Boolean);
   }
 
   function isMarked(r, c) {
-    const cells = gridCells();
-    return cells[indexOf(r, c)].classList.contains('marked');
+    const cell = boardMatrix[r]?.[c] || null;
+    return Boolean(cell && cell.classList.contains('marked'));
   }
 
   function clearMarks() {
@@ -874,8 +913,8 @@
   }
 
   function checkBingo() {
-    const cells = gridCells();
-    cells.forEach(el => el.classList.remove('bingo'));
+    const allCells = gridCells();
+    allCells.forEach(el => el.classList.remove('bingo'));
 
     const lines = [];
     for (let r = 0; r < size; r++) lines.push(Array.from({length:size}, (_, c) => [r, c]));
@@ -885,16 +924,26 @@
 
     let bingoCount = 0;
     for (const line of lines) {
-      if (line.every(([r,c]) => isMarked(r,c))) {
+      const cellsInLine = [];
+      let full = true;
+      for (const [r, c] of line) {
+        const cell = boardMatrix[r]?.[c] || null;
+        if (!cell || !cell.classList.contains('marked')) {
+          full = false;
+          break;
+        }
+        cellsInLine.push(cell);
+      }
+      if (full) {
         bingoCount++;
-        line.forEach(([r,c]) => cells[indexOf(r,c)].classList.add('bingo'));
+        cellsInLine.forEach(cell => cell.classList.add('bingo'));
       }
     }
     lastBingoText = bingoCount > 0 ? `Bingo: ${bingoCount} ligne${bingoCount>1?'s':''}` : 'Pas de bingo';
   }
 
   function updateStats() {
-    const total = size * size;
+    const total = Math.max(1, playableCellCount);
     const marked = gridCells().filter(x => x.classList.contains('marked')).length;
     const pct = Math.round(marked * 100 / total);
     const parts = [`${marked}/${total} cochées`, `${pct}%`];
