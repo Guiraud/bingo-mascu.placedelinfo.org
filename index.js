@@ -778,7 +778,14 @@
     size = parseInt(sizeSel.value, 10);
     const useFree = false;
     const totalCells = size * size;
-    const detailSlotCount = size === 5 ? 3 : 0;
+    const detailConfig = size === 5
+      ? { rows: [1, 2, 3], cols: [1, 2, 3], area: '2 / 2 / span 3 / span 3' }
+      : size === 4
+        ? { rows: [1, 2], cols: [1, 2], area: '2 / 2 / span 2 / span 2' }
+        : size === 3
+          ? { rows: [1], cols: [1], area: '2 / 2 / span 1 / span 1' }
+          : null;
+    const detailSlotCount = detailConfig ? detailConfig.rows.length * detailConfig.cols.length : 0;
     const availableSlots = totalCells - detailSlotCount;
     playableCellCount = availableSlots;
     const picked = takePhrases(availableSlots, useFree);
@@ -788,18 +795,19 @@
     boardEl.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
     boardMatrix = Array.from({ length: size }, () => Array(size).fill(null));
 
-    const isFive = size === 5;
     let detailSlotElement = null;
-    if (isFive) {
+    if (detailConfig) {
       detailSlotElement = document.createElement('div');
       detailSlotElement.className = 'board-detail-slot';
-      detailSlotElement.style.gridArea = '2 / 2 / span 3 / span 3';
+      detailSlotElement.style.gridArea = detailConfig.area;
       boardEl.appendChild(detailSlotElement);
       detailSlotElement.appendChild(detailsEl);
       detailsEl.classList.add('board-details');
     }
 
-    const detailSkip = isFive ? new Set(['1-2', '2-1', '2-2', '2-3', '3-2']) : null;
+    const detailSkip = detailConfig
+      ? new Set(detailConfig.rows.flatMap(r => detailConfig.cols.map(c => `${r}-${c}`)))
+      : null;
     const phenMaxBase = Math.min(6, availableSlots);
     const phenMinBase = Math.min(3, availableSlots);
     const phenMin = phenMaxBase > 0 ? Math.max(1, Math.min(phenMinBase, phenMaxBase)) : 0;
