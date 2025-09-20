@@ -1013,11 +1013,11 @@
   clearBtn.addEventListener('click', clearMarks);
   copyBtn.addEventListener('click', copyList);
   sizeSel.addEventListener('change', buildBoard);
-  const handleDetailEmbedChange = () => buildBoard();
+  const handleDetailQueryChange = () => buildBoard();
   if (typeof detailEmbedQuery.addEventListener === 'function') {
-    detailEmbedQuery.addEventListener('change', handleDetailEmbedChange);
+    detailEmbedQuery.addEventListener('change', handleDetailQueryChange);
   } else if (typeof detailEmbedQuery.addListener === 'function') {
-    detailEmbedQuery.addListener(handleDetailEmbedChange);
+    detailEmbedQuery.addListener(handleDetailQueryChange);
   }
 
   async function loadArgumentaires() {
