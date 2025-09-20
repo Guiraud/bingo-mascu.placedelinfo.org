@@ -793,14 +793,13 @@
     if (isFive) {
       detailSlotElement = document.createElement('div');
       detailSlotElement.className = 'board-detail-slot';
-      detailSlotElement.style.gridRow = '2 / span 3';
-      detailSlotElement.style.gridColumn = '3';
+      detailSlotElement.style.gridArea = '2 / 2 / span 3 / span 3';
       boardEl.appendChild(detailSlotElement);
       detailSlotElement.appendChild(detailsEl);
       detailsEl.classList.add('board-details');
     }
 
-    const detailSkip = isFive ? new Set(['1-2', '2-2', '3-2']) : null;
+    const detailSkip = isFive ? new Set(['1-2', '2-1', '2-2', '2-3', '3-2']) : null;
     const phenMaxBase = Math.min(6, availableSlots);
     const phenMinBase = Math.min(3, availableSlots);
     const phenMin = phenMaxBase > 0 ? Math.max(1, Math.min(phenMinBase, phenMaxBase)) : 0;
