@@ -699,7 +699,7 @@
   const detailsHomeNextSibling = detailsEl.nextElementSibling;
   const newBtn = document.getElementById('new');
   const clearBtn = document.getElementById('clear');
-  const copyBtn = document.getElementById('copy');
+  const downloadBtn = document.getElementById('download');
   const sizeSel = document.getElementById('size');
   const contextInput = document.getElementById('contextInput');
   const detailEmbedQuery = window.matchMedia('(min-width: 900px)');
@@ -1010,20 +1010,157 @@
     statsEl.textContent = parts.join(' • ');
   }
 
-  function copyList() {
-    const cells = gridCells()
-      .filter(el => !isPhenomenonCell(el))
-      .map(el => el.textContent.trim())
-      .filter(t => t && t !== 'Case libre');
-    const txt = cells.join('\n');
-    navigator.clipboard.writeText(txt).then(() => {
-      copyBtn.textContent = 'Liste copiée';
-      setTimeout(() => copyBtn.textContent = 'Copier la liste tirée', 1200);
-    });
+  function downloadPdf() {
+    const jsPDFLib = window.jspdf;
+    if (!jsPDFLib || typeof jsPDFLib.jsPDF !== 'function') {
+      alert('Export PDF indisponible : librairie manquante.');
+      return;
+    }
+
+    const originalLabel = downloadBtn ? downloadBtn.textContent : '';
+    if (downloadBtn) {
+      downloadBtn.disabled = true;
+      downloadBtn.textContent = 'Préparation du PDF…';
+    }
+
+    try {
+      const { jsPDF } = jsPDFLib;
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+      const margin = 48;
+      const maxWidth = doc.internal.pageSize.getWidth() - margin * 2;
+      let cursorY = margin;
+
+      const pad = (n) => String(n).padStart(2, '0');
+      const ensureSpace = (height) => {
+        const pageHeight = doc.internal.pageSize.getHeight();
+        if (cursorY + height > pageHeight - margin) {
+          doc.addPage();
+          cursorY = margin;
+        }
+      };
+
+      const addParagraph = (text, spacing = 6) => {
+        if (!text) return;
+        const lines = doc.splitTextToSize(text, maxWidth);
+        lines.forEach(line => {
+          ensureSpace(14);
+          doc.text(line, margin, cursorY);
+          cursorY += 14;
+        });
+        cursorY += spacing;
+      };
+
+      const addSectionTitle = (title) => {
+        ensureSpace(20);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(16);
+        doc.text(title, margin, cursorY);
+        cursorY += 18;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(12);
+      };
+
+      const addListEntry = (heading, paragraphs) => {
+        ensureSpace(16);
+        doc.setFont('helvetica', 'bold');
+        doc.text(heading, margin, cursorY);
+        cursorY += 14;
+        doc.setFont('helvetica', 'normal');
+        if (Array.isArray(paragraphs)) {
+          paragraphs.forEach((text, idx) => addParagraph(text, idx === paragraphs.length - 1 ? 8 : 4));
+        } else if (paragraphs) {
+          addParagraph(paragraphs, 8);
+        } else {
+          cursorY += 4;
+        }
+      };
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(18);
+      doc.text('Bingo féministe - Rapport de session', margin, cursorY);
+      cursorY += 24;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(12);
+
+      const now = new Date();
+      const timestamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+      addParagraph(`Export généré le ${timestamp}.`, 8);
+      addParagraph(`Taille de la grille : ${size} x ${size}.`, 10);
+
+      addSectionTitle('Contexte');
+      addParagraph(contextInput.value.trim() || 'Non précisé.', 10);
+
+      const playableCells = gridCells().filter(cell => !isPhenomenonCell(cell));
+      const total = playableCells.length;
+      const markedCells = playableCells.filter(cell => cell.classList.contains('marked'));
+      const unmarkedCells = playableCells.filter(cell => !cell.classList.contains('marked'));
+      const markedCount = markedCells.length;
+      const pct = total ? Math.round(markedCount * 100 / total) : 0;
+
+      addSectionTitle('Résumé');
+      addParagraph(`Cases cochées : ${markedCount}/${total} (${pct} %).`, 4);
+      addParagraph(lastBingoText || 'Pas de ligne complétée pour l’instant.', 10);
+
+      addSectionTitle('Cases cochées');
+      if (markedCells.length === 0) {
+        addParagraph('Aucune case cochée.', 10);
+      } else {
+        markedCells.forEach((cell, index) => {
+          const phrase = cell.textContent.trim();
+          const argumentaire = ARGUMENTAIRES[phrase] || '';
+          const sources = ARG_SOURCES[phrase] || [];
+          const paragraphs = [];
+          if (argumentaire) {
+            paragraphs.push(argumentaire);
+          }
+          if (sources.length) {
+            const sourceText = ['Sources :'].concat(
+              sources.map(src => {
+                const titre = src.titre || 'Source';
+                const auteur = src.auteur ? ` (${src.auteur})` : '';
+                const url = src.url ? ` - ${src.url}` : '';
+                return `${titre}${auteur}${url}`;
+              })
+            ).join('\n');
+            paragraphs.push(sourceText);
+          }
+          addListEntry(`${index + 1}. ${phrase}`, paragraphs);
+        });
+      }
+
+      addSectionTitle('Cases restantes');
+      if (unmarkedCells.length) {
+        const lines = unmarkedCells.map(cell => `- ${cell.textContent.trim()}`).join('\n');
+        addParagraph(lines, 10);
+      } else {
+        addParagraph('Toutes les cases ont été cochées.', 10);
+      }
+
+      const phenomenonCells = gridCells().filter(isPhenomenonCell);
+      addSectionTitle('Phénomènes observés');
+      if (phenomenonCells.length) {
+        const lines = phenomenonCells.map((cell, idx) => `${idx + 1}. ${cell.textContent.trim()}`);
+        addParagraph(lines.join('\n'), 10);
+      } else {
+        addParagraph('Aucun phénomène spécial n’a été affiché sur cette grille.', 10);
+      }
+
+      const filename = `bingo-rapport-${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}.pdf`;
+      doc.save(filename);
+    } finally {
+      if (downloadBtn) {
+        setTimeout(() => {
+          downloadBtn.disabled = false;
+          downloadBtn.textContent = originalLabel || 'Télécharger le rapport PDF';
+        }, 400);
+      }
+    }
   }
   newBtn.addEventListener('click', buildBoard);
   clearBtn.addEventListener('click', clearMarks);
-  copyBtn.addEventListener('click', copyList);
+  if (downloadBtn) {
+    downloadBtn.addEventListener('click', downloadPdf);
+  }
   sizeSel.addEventListener('change', buildBoard);
   const handleDetailQueryChange = () => buildBoard();
   if (typeof detailEmbedQuery.addEventListener === 'function') {
