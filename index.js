@@ -703,11 +703,13 @@
   const sizeSel = document.getElementById('size');
   const contextInput = document.getElementById('contextInput');
   const detailEmbedQuery = window.matchMedia('(min-width: 900px)');
-  const compactBoardQuery = window.matchMedia('(max-width: 500px)');
+  const compact4Query = window.matchMedia('(max-width: 520px)');
+  const compact3Query = window.matchMedia('(max-width: 400px)');
   const sizeOptionFive = sizeSel?.querySelector('option[value="5"]') || null;
+  const sizeOptionFour = sizeSel?.querySelector('option[value="4"]') || null;
 
-  let forcedMobileSize = null;
   let size = parseInt(sizeSel.value, 10);
+  let previousDesktopSize = null;
   let lastDetailHTML = '';
   let lastBingoText = '';
   let boardMatrix = [];
@@ -768,24 +770,44 @@
 
   function enforceCompactBoardSize({ rebuild = false } = {}) {
     if (!sizeSel) return;
-    if (sizeOptionFive) {
-      sizeOptionFive.disabled = compactBoardQuery.matches;
+
+    const disableFive = compact4Query.matches;
+    const disableFour = compact3Query.matches;
+
+    if (sizeOptionFive) sizeOptionFive.disabled = disableFive;
+    if (sizeOptionFour) sizeOptionFour.disabled = disableFour;
+
+    const current = parseInt(sizeSel.value, 10) || 5;
+    let target = null;
+    if (disableFour) {
+      target = 3;
+    } else if (disableFive) {
+      target = 4;
     }
 
-    if (compactBoardQuery.matches) {
-      const current = parseInt(sizeSel.value, 10);
-      if (current > 4) {
-        forcedMobileSize = current;
-        sizeSel.value = '4';
-        if (rebuild) buildBoard();
+    if (target && current > target) {
+      if (previousDesktopSize === null || current > previousDesktopSize) {
+        previousDesktopSize = current;
       }
-    } else if (forcedMobileSize !== null) {
-      sizeSel.value = String(Math.max(3, forcedMobileSize));
-      forcedMobileSize = null;
+      sizeSel.value = String(target);
+      size = target;
       if (rebuild) buildBoard();
+      return;
+    }
+
+    if (!target && previousDesktopSize !== null) {
+      const option = sizeSel.querySelector(`option[value="${previousDesktopSize}"]`);
+      if (option && !option.disabled) {
+        sizeSel.value = String(previousDesktopSize);
+      }
+      previousDesktopSize = null;
+      size = parseInt(sizeSel.value, 10);
+      if (rebuild) buildBoard();
+      return;
     }
 
     size = parseInt(sizeSel.value, 10);
+    if (rebuild) buildBoard();
   }
 
   enforceCompactBoardSize();
@@ -1190,7 +1212,7 @@
   }
   sizeSel.addEventListener('change', () => {
     size = parseInt(sizeSel.value, 10);
-    buildBoard();
+    enforceCompactBoardSize({ rebuild: true });
   });
   const handleDetailQueryChange = () => buildBoard();
   if (typeof detailEmbedQuery.addEventListener === 'function') {
@@ -1199,11 +1221,15 @@
     detailEmbedQuery.addListener(handleDetailQueryChange);
   }
   const handleCompactBoardChange = () => enforceCompactBoardSize({ rebuild: true });
-  if (typeof compactBoardQuery.addEventListener === 'function') {
-    compactBoardQuery.addEventListener('change', handleCompactBoardChange);
-  } else if (typeof compactBoardQuery.addListener === 'function') {
-    compactBoardQuery.addListener(handleCompactBoardChange);
-  }
+  [compact4Query, compact3Query].forEach(query => {
+    if (!query) return;
+    if (typeof query.addEventListener === 'function') {
+      query.addEventListener('change', handleCompactBoardChange);
+    } else if (typeof query.addListener === 'function') {
+      query.addListener(handleCompactBoardChange);
+    }
+  });
+  window.addEventListener('resize', () => enforceCompactBoardSize({ rebuild: true }));
 
   async function loadArgumentaires() {
     try {
