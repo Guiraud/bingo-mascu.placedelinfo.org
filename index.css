@@ -350,13 +350,65 @@ input[type="text"] { cursor:text; min-width: 180px }
 }
 
 @media (max-width: 600px) {
+  header {
+    padding: 16px 12px 12px;
+  }
+  h1 {
+    font-size: clamp(20px, 7vw, 28px);
+  }
+  .main-nav {
+    gap: 8px;
+  }
+  .toolbar {
+    margin: 12px 0 16px;
+    gap: 8px;
+    padding: 0 4px;
+  }
+  .toolbar .context-input {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+  .toolbar button,
+  .toolbar .link-button {
+    width: 100%;
+    justify-content: center;
+  }
+  .toolbar label {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-start;
+  }
+  .toolbar label select {
+    width: 100%;
+  }
   .container {
     gap: 16px;
+    padding: 0 12px 24px;
   }
   .board {
-    width: 100%;
+    width: min(92vw, 480px);
     max-width: 100%;
     aspect-ratio: 1;
+    gap: 6px;
+  }
+  .cell {
+    padding: 8px;
+    border-radius: 14px;
+    font-size: clamp(11px, 3.7vw, 14px);
+  }
+  .cell .label {
+    padding: 4px;
+  }
+  .stats {
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+    padding: 0 12px;
+  }
+  .details {
+    padding: 14px;
   }
 }
 

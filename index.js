@@ -708,7 +708,6 @@
   let lastDetailHTML = '';
   let lastBingoText = '';
   let boardMatrix = [];
-  let playableCellCount = size * size;
 
   function randomBetween(min, max) {
     const low = Math.ceil(min);
@@ -758,6 +757,10 @@
     const sourcesHtml = list ? `<h3>Sources</h3><ul>${list}</ul>` : '';
     const html = `<h2>${phenomenon.nom}</h2><p>${phenomenon.description}</p>${sourcesHtml}`;
     setDetails(html, { persist: !transient });
+  }
+
+  function isPhenomenonCell(cell) {
+    return Boolean(cell && cell.dataset && cell.dataset.cellType === 'phenomenon');
   }
 
   function addGlitterFrame(slot) {
@@ -824,7 +827,6 @@
     const effectiveDetail = embedDetail ? detailConfig : null;
     const detailSlotCount = effectiveDetail ? effectiveDetail.rows.length * effectiveDetail.cols.length : 0;
     const availableSlots = totalCells - detailSlotCount;
-    playableCellCount = availableSlots;
     const picked = takePhrases(availableSlots, useFree);
     renderDefaultDetails();
     moveDetailsHome();
@@ -886,26 +888,37 @@
           cell.dataset.phenomenonId = phenomenon.id;
           cell.__phenomenon = phenomenon;
           cell.classList.add('phenomenon-cell');
+          cell.setAttribute('aria-pressed', 'false');
           cell.addEventListener('mouseenter', () => renderPhenomenonDetails(phenomenon, { transient: true }));
           cell.addEventListener('mouseleave', restoreLastDetails);
+          cell.addEventListener('click', () => {
+            renderPhenomenonDetails(phenomenon);
+          });
         } else {
           label.textContent = isCenter ? 'Case libre' : picked[phraseIndex++];
+          cell.dataset.cellType = 'phrase';
+          cell.setAttribute('aria-pressed', isCenter ? 'true' : 'false');
+          cell.addEventListener('click', () => toggleCell(cell));
         }
         cell.appendChild(label);
-        cell.addEventListener('click', () => toggleCell(cell));
         boardEl.appendChild(cell);
         boardMatrix[r][c] = cell;
         slotIndex++;
       }
     }
 
-    playableCellCount = slotIndex;
-
     lastBingoText = 'Pas de bingo';
     updateStats();
   }
 
   function toggleCell(cell) {
+    if (isPhenomenonCell(cell)) {
+      const phenomenon = PHENOMENA_BY_ID.get(cell.dataset.phenomenonId) || cell.__phenomenon;
+      if (phenomenon) {
+        renderPhenomenonDetails(phenomenon);
+      }
+      return;
+    }
     cell.classList.toggle('marked');
     const pressed = cell.classList.contains('marked');
     cell.setAttribute('aria-pressed', pressed ? 'true' : 'false');
@@ -913,14 +926,6 @@
     updateStats();
 
     if (!pressed) return;
-
-    if (cell.dataset.cellType === 'phenomenon') {
-      const phenomenon = PHENOMENA_BY_ID.get(cell.dataset.phenomenonId) || cell.__phenomenon;
-      if (phenomenon) {
-        renderPhenomenonDetails(phenomenon);
-        return;
-      }
-    }
 
     const phrase = cell.textContent.trim();
     showArgumentaire(phrase);
@@ -944,16 +949,15 @@
     return boardMatrix.flat().filter(Boolean);
   }
 
-  function isMarked(r, c) {
-    const cell = boardMatrix[r]?.[c] || null;
-    return Boolean(cell && cell.classList.contains('marked'));
-  }
-
   function clearMarks() {
     gridCells().forEach(el => {
-      if (!el.classList.contains('free')) el.classList.remove('marked', 'bingo');
       el.classList.remove('bingo');
-      el.setAttribute('aria-pressed', el.classList.contains('marked') ? 'true' : 'false');
+      if (isPhenomenonCell(el)) {
+        el.setAttribute('aria-pressed', 'false');
+        return;
+      }
+      el.classList.remove('marked');
+      el.setAttribute('aria-pressed', 'false');
     });
     lastBingoText = 'Pas de bingo';
     updateStats();
@@ -976,7 +980,11 @@
       let full = true;
       for (const [r, c] of line) {
         const cell = boardMatrix[r]?.[c] || null;
-        if (!cell || !cell.classList.contains('marked')) {
+        if (!cell) {
+          full = false;
+          break;
+        }
+        if (!isPhenomenonCell(cell) && !cell.classList.contains('marked')) {
           full = false;
           break;
         }
@@ -991,8 +999,9 @@
   }
 
   function updateStats() {
-    const total = Math.max(1, playableCellCount);
-    const marked = gridCells().filter(x => x.classList.contains('marked')).length;
+    const playableCells = gridCells().filter(cell => !isPhenomenonCell(cell));
+    const total = playableCells.length || 1;
+    const marked = playableCells.filter(x => x.classList.contains('marked')).length;
     const pct = Math.round(marked * 100 / total);
     const parts = [`${marked}/${total} cochées`, `${pct}%`];
     if (lastBingoText) {
@@ -1002,7 +1011,10 @@
   }
 
   function copyList() {
-    const cells = gridCells().map(el => el.textContent.trim()).filter(t => t && t !== 'Case libre');
+    const cells = gridCells()
+      .filter(el => !isPhenomenonCell(el))
+      .map(el => el.textContent.trim())
+      .filter(t => t && t !== 'Case libre');
     const txt = cells.join('\n');
     navigator.clipboard.writeText(txt).then(() => {
       copyBtn.textContent = 'Liste copiée';
