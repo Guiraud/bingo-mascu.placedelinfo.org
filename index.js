@@ -703,7 +703,10 @@
   const sizeSel = document.getElementById('size');
   const contextInput = document.getElementById('contextInput');
   const detailEmbedQuery = window.matchMedia('(min-width: 900px)');
+  const compactBoardQuery = window.matchMedia('(max-width: 480px)');
+  const sizeOptionFive = sizeSel?.querySelector('option[value="5"]') || null;
 
+  let forcedMobileSize = null;
   let size = parseInt(sizeSel.value, 10);
   let lastDetailHTML = '';
   let lastBingoText = '';
@@ -762,6 +765,30 @@
   function isPhenomenonCell(cell) {
     return Boolean(cell && cell.dataset && cell.dataset.cellType === 'phenomenon');
   }
+
+  function enforceCompactBoardSize({ rebuild = false } = {}) {
+    if (!sizeSel) return;
+    if (sizeOptionFive) {
+      sizeOptionFive.disabled = compactBoardQuery.matches;
+    }
+
+    if (compactBoardQuery.matches) {
+      const current = parseInt(sizeSel.value, 10);
+      if (current > 4) {
+        forcedMobileSize = current;
+        sizeSel.value = '4';
+        if (rebuild) buildBoard();
+      }
+    } else if (forcedMobileSize !== null) {
+      sizeSel.value = String(Math.max(3, forcedMobileSize));
+      forcedMobileSize = null;
+      if (rebuild) buildBoard();
+    }
+
+    size = parseInt(sizeSel.value, 10);
+  }
+
+  enforceCompactBoardSize();
 
   function addGlitterFrame(slot) {
     const starsContainer = document.createElement('div');
@@ -1161,12 +1188,21 @@
   if (downloadBtn) {
     downloadBtn.addEventListener('click', downloadPdf);
   }
-  sizeSel.addEventListener('change', buildBoard);
+  sizeSel.addEventListener('change', () => {
+    size = parseInt(sizeSel.value, 10);
+    buildBoard();
+  });
   const handleDetailQueryChange = () => buildBoard();
   if (typeof detailEmbedQuery.addEventListener === 'function') {
     detailEmbedQuery.addEventListener('change', handleDetailQueryChange);
   } else if (typeof detailEmbedQuery.addListener === 'function') {
     detailEmbedQuery.addListener(handleDetailQueryChange);
+  }
+  const handleCompactBoardChange = () => enforceCompactBoardSize({ rebuild: true });
+  if (typeof compactBoardQuery.addEventListener === 'function') {
+    compactBoardQuery.addEventListener('change', handleCompactBoardChange);
+  } else if (typeof compactBoardQuery.addListener === 'function') {
+    compactBoardQuery.addListener(handleCompactBoardChange);
   }
 
   async function loadArgumentaires() {
