@@ -785,29 +785,28 @@
       target = 4;
     }
 
+    let sizeChanged = false;
     if (target && current > target) {
       if (previousDesktopSize === null || current > previousDesktopSize) {
         previousDesktopSize = current;
       }
       sizeSel.value = String(target);
       size = target;
-      if (rebuild) buildBoard();
-      return;
-    }
-
-    if (!target && previousDesktopSize !== null) {
+      sizeChanged = true;
+    } else if (!target && previousDesktopSize !== null) {
       const option = sizeSel.querySelector(`option[value="${previousDesktopSize}"]`);
       if (option && !option.disabled) {
         sizeSel.value = String(previousDesktopSize);
+        sizeChanged = parseInt(sizeSel.value, 10) !== current;
       }
       previousDesktopSize = null;
-      size = parseInt(sizeSel.value, 10);
-      if (rebuild) buildBoard();
-      return;
     }
 
     size = parseInt(sizeSel.value, 10);
-    if (rebuild) buildBoard();
+    if (rebuild && sizeChanged) {
+      buildBoard();
+    }
+    return sizeChanged;
   }
 
   enforceCompactBoardSize();
@@ -1212,7 +1211,8 @@
   }
   sizeSel.addEventListener('change', () => {
     size = parseInt(sizeSel.value, 10);
-    enforceCompactBoardSize({ rebuild: true });
+    enforceCompactBoardSize({ rebuild: false });
+    buildBoard();
   });
   const handleDetailQueryChange = () => buildBoard();
   if (typeof detailEmbedQuery.addEventListener === 'function') {
@@ -1229,7 +1229,6 @@
       query.addListener(handleCompactBoardChange);
     }
   });
-  window.addEventListener('resize', () => enforceCompactBoardSize({ rebuild: true }));
 
   async function loadArgumentaires() {
     try {
