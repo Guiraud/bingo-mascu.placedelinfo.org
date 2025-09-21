@@ -703,7 +703,7 @@
   const sizeSel = document.getElementById('size');
   const contextInput = document.getElementById('contextInput');
   const detailEmbedQuery = window.matchMedia('(min-width: 900px)');
-  const compactBoardQuery = window.matchMedia('(max-width: 480px)');
+  const compactBoardQuery = window.matchMedia('(max-width: 500px)');
   const sizeOptionFive = sizeSel?.querySelector('option[value="5"]') || null;
 
   let forcedMobileSize = null;
