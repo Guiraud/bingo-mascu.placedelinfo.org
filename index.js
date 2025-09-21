@@ -899,11 +899,10 @@
     const detailSkip = effectiveDetail
       ? new Set(effectiveDetail.rows.flatMap(r => effectiveDetail.cols.map(c => `${r}-${c}`)))
       : null;
-    const phenMaxBase = Math.min(embedDetail ? 6 : 5, availableSlots);
-    const phenMinBase = Math.min(embedDetail ? 3 : 2, availableSlots);
-    const phenMin = phenMaxBase > 0 ? Math.max(1, Math.min(phenMinBase, phenMaxBase)) : 0;
-    const phenMax = phenMaxBase;
-    const desiredPhenomenaCount = phenMax > 0 ? Math.min(randomBetween(phenMin, phenMax), PATRIARCHAL_PHENOMENA.length) : 0;
+    const oneThirdCap = Math.max(1, Math.floor(availableSlots / 3));
+    const maxPhenomena = Math.min(embedDetail ? 6 : 5, oneThirdCap, PATRIARCHAL_PHENOMENA.length, availableSlots);
+    const minPhenomena = Math.max(1, Math.min(embedDetail ? 3 : 2, maxPhenomena));
+    const desiredPhenomenaCount = maxPhenomena > 0 ? randomBetween(minPhenomena, maxPhenomena) : 0;
     const indicesPool = rngShuffle(Array.from({ length: availableSlots }, (_, i) => i));
     const selectedIndices = new Set(indicesPool.slice(0, desiredPhenomenaCount));
     const selectedPhenomena = rngShuffle(PATRIARCHAL_PHENOMENA).slice(0, selectedIndices.size);
