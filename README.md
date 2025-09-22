@@ -85,6 +85,13 @@ pages:
    - tente une soumission ; la réponse doit être `201` et la console ne doit pas contenir `turnstile-verification-failed`.
 4. **Maintenir la configuration** : à chaque nouvel environnement, ajoute son domaine dans `connect-src` (fichier `_headers`) et dans `ALLOWED_ORIGINS` du Worker (`workers-argumentaires/src/index.ts`).
 
+### Administration éditoriale
+- L’interface `admin.html` permet d’ajouter, modifier ou supprimer argumentaires et phénomènes.
+- Le mot de passe attendu est `MotdePasse` (hash SHA-256 aligné entre `server.py` et `workers-argumentaires/src/index.ts`).
+- Après authentification, l’API renvoie un jeton (`x-admin-token`) valable 1 heure, stocké dans Workers KV.
+- En local : `python3 server.py` puis ouvrir `http://localhost:8000/admin.html`.
+- En production : déployer le Worker (`wrangler deploy`) pour prendre en compte les routes `/api/admin/*`.
+
 ## Depannage
 - Propagation DNS : peut prendre jusqu'a 24h. Controlez avec `dig` ou `nslookup`.
 - Boucles de redirection : si HTTPS est force deux fois, desactivez `Enforce HTTPS` dans GitHub et laissez Cloudflare gerer.
