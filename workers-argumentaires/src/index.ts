@@ -39,10 +39,7 @@ const MAX_SOURCES = 12;
 const STATIC_ALLOWED_ORIGINS = new Set(
   [
     'https://bingo-mascu.mehdiguiraud.net',
-    'https://guiraud.github.io',
-    'https://guiraud.gitlab.io',
     'https://bingo-mascu-placedelinfo-org-71e588.gitlab.io',
-    'https://workers-argumentaires.guiraud.workers.dev',
     'https://workers-argumentaires.mehdi-guiraud.workers.dev',
     'https://workers-argumentaires-dev.mehdi-guiraud.workers.dev',
     'https://dev.workers-argumentaires.guiraud.workers.dev',
