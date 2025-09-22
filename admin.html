@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Administration des argumentaires</title>
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+  <header>
+    <h1>Administration du bingo</h1>
+    <p>Modifier, ajouter ou supprimer des argumentaires et phénomènes.</p>
+  </header>
+
+  <main>
+    <section id="auth">
+      <h2>Connexion requise</h2>
+      <form id="loginForm" autocomplete="off">
+        <label for="adminPassword">Mot de passe</label>
+        <input type="password" id="adminPassword" required />
+        <button type="submit">Valider</button>
+        <p class="help">L'accès est réservé à l'équipe éditoriale.</p>
+      </form>
+      <div id="authError" class="error" role="alert" hidden></div>
+    </section>
+
+    <section id="adminPanel" hidden aria-live="polite">
+      <div class="toolbar">
+        <button id="refresh">Rafraîchir les données</button>
+        <button id="createArgument">Nouvel argumentaire</button>
+        <button id="createPhenomenon">Nouveau phénomène</button>
+        <button id="logout" class="secondary">Déconnexion</button>
+      </div>
+      <div class="columns">
+        <div class="column" aria-labelledby="argumentsTitle">
+          <h2 id="argumentsTitle">Argumentaires</h2>
+          <table id="argumentsTable">
+            <thead>
+              <tr><th>Phrase</th><th>Actions</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="column" aria-labelledby="phenomenaTitle">
+          <h2 id="phenomenaTitle">Phénomènes</h2>
+          <table id="phenomenaTable">
+            <thead>
+              <tr><th>Nom</th><th>Actions</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <dialog id="editDialog">
+        <form id="editForm" method="dialog">
+          <h3 id="editTitle"></h3>
+          <label>
+            Intitulé
+            <input type="text" id="itemName" required />
+          </label>
+          <label>
+            Contenu / Description
+            <textarea id="itemContent" rows="6" required></textarea>
+          </label>
+          <label>
+            Sources (JSON)
+            <textarea id="itemSources" rows="4" placeholder='[{"titre":"…","url":"…"}]'></textarea>
+          </label>
+          <div class="actions">
+            <button type="submit">Enregistrer</button>
+            <button type="button" id="deleteBtn" class="danger">Supprimer</button>
+            <button type="button" id="cancelBtn" class="secondary">Annuler</button>
+          </div>
+        </form>
+      </dialog>
+    </section>
+  </main>
+
+  <template id="rowTemplate">
+    <tr>
+      <td class="label"></td>
+      <td class="actions">
+        <button type="button" class="edit">Modifier</button>
+      </td>
+    </tr>
+  </template>
+  <script src="admin.js" defer></script>
+</body>
+</html>
