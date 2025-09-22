@@ -20,7 +20,7 @@ LEGACY_DB_PATH = BASE_DIR / "argumentaires.db"
 JSON_DB_PATH = BASE_DIR / "argumentaires.json"
 DB_LOCK = Lock()
 
-ADMIN_PASSWORD_HASH = "72f8f552df706442c011d78f33a2cee8064612da0b2d4e2b7c00ad2d9761a78b"
+ADMIN_PASSWORD_HASH = "23f6249ea0388a75929454e3faf127af2b80bd69bdcbf45d1b4de399da47d51a"
 ADMIN_TOKEN_TTL = 3600  # 1 heure
 ISSUED_TOKENS: dict[str, float] = {}
 TOKEN_LOCK = Lock()
