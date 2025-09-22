@@ -407,12 +407,12 @@ async function routeRequest(request: Request, env: Env, origin: string): Promise
 
     if (method === 'POST' && url.pathname === '/api/admin/argumentaires') {
       await handleAdminArgumentaireUpsert(request, env);
-      return jsonResponse({ status: 'ok' }, 204, origin);
+      return jsonResponse({ status: 'ok' }, 200, origin);
     }
 
     if (method === 'POST' && url.pathname === '/api/admin/argumentaires/delete') {
       await handleAdminArgumentaireDelete(request, env);
-      return jsonResponse({ status: 'ok' }, 204, origin);
+      return jsonResponse({ status: 'ok' }, 200, origin);
     }
 
     if (method === 'GET' && url.pathname === '/api/admin/phenomenes') {
@@ -422,12 +422,12 @@ async function routeRequest(request: Request, env: Env, origin: string): Promise
 
     if (method === 'POST' && url.pathname === '/api/admin/phenomenes') {
       await handleAdminPhenomenonUpsert(request, env);
-      return jsonResponse({ status: 'ok' }, 204, origin);
+      return jsonResponse({ status: 'ok' }, 200, origin);
     }
 
     if (method === 'POST' && url.pathname === '/api/admin/phenomenes/delete') {
       await handleAdminPhenomenonDelete(request, env);
-      return jsonResponse({ status: 'ok' }, 204, origin);
+      return jsonResponse({ status: 'ok' }, 200, origin);
     }
   }
 
