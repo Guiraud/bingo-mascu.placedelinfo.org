@@ -11,6 +11,7 @@
 - `python3 -m venv .venv && source .venv/bin/activate` (optional) to isolate dependencies before running the server.
 - `python3 server.py` launches the threaded dev server on http://localhost:8000, initializes the SQLite database, and serves the static files.
 - `python3 -m py_compile server.py` mirrors the GitLab CI syntax check; run after Python edits.
+- `python3 ci_test_api.py` boots the local API, posts an argumentaire, then asserts it can be fetched (same smoke test as the GitLab pipeline).
 - `curl http://localhost:8000/api/argumentaires` verifies the API JSON payload after data changes.
 
 ## Coding Style & Naming Conventions
@@ -19,8 +20,8 @@
 - Branch names should be descriptive kebab-case (`feature/refine-bingo-grid`, `fix/api-status-code`).
 
 ## Testing Guidelines
-- There is no automated test suite yet; rely on `py_compile` plus functional smoke tests against the running server.
-- Before opening a merge request, exercise the main pages in a browser and hit the API endpoints with `curl` or your client to confirm new records persist in `argumentaires.db`.
+- GitLab CI exécute `python3 ci_test_api.py`; lance-le en local pour garantir la persistance SQLite.
+- Complète avec des vérifications manuelles : pages web dans un navigateur et appels `curl` pour confirmer la présence des nouveaux enregistrements dans `argumentaires.db`.
 
 ## Commit & Pull Request Guidelines
 - Use imperative Conventional Commits (`feat: ajoute un filtre API`, `fix: corrige la nav mobile`) to simplify changelog generation.
