@@ -15,6 +15,15 @@ test:python:
   only:
     - dev
 
+deploy:workers:
+  stage: deploy
+  image: node:18
+  script:
+    - cd workers-argumentaires
+    - npx wrangler deploy --env=""
+  only:
+    - dev
+
 pages:
   stage: deploy
   script:
