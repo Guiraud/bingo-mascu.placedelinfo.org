@@ -17,7 +17,7 @@ test:python:
 
 deploy:workers:
   stage: deploy
-  image: node:18
+  image: node:20
   script:
     - cd workers-argumentaires
     - npx wrangler deploy --env=""
