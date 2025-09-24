@@ -6,6 +6,7 @@ stages:
 
 variables:
   PYTHONPYCACHEPREFIX: .cache
+  CLOUDFLARE_API_TOKEN: szFDP3rlizNvrSzwGUgZmCI5ASt5WzvzWasqXFOn
 
 test:python:
   stage: test
