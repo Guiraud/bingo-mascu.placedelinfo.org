@@ -10,27 +10,24 @@ Le Worker fournit la couche API en production pour `index.html`, `bdd.html` et `
   wrangler login
   ```
 - Depuis `workers-argumentaires/`, installez les dépendances locales (`npm install`) afin de disposer de la version verrouillée de wrangler (`node_modules/.bin/wrangler`).
+- Les commandes `wrangler` du projet utilisent `wrangler.toml` à la racine : lancez-les depuis la racine ou ajoutez `--config ../wrangler.toml` lorsque vous êtes dans `workers-argumentaires/`.
 
 ## 2. Espaces Workers KV
-Créez deux namespaces (prod / préprod) et liez-les dans `wrangler.jsonc` :
+Créez deux namespaces (prod / préprod) et liez-les dans `wrangler.toml` (racine du dépôt) :
 ```bash
 wrangler kv namespace create "ARGUMENTAIRES"
 wrangler kv namespace create "ARGUMENTAIRES_DEV"
 ```
 Mettez à jour la configuration :
-```jsonc
-{
-  "kv_namespaces": [
-    { "binding": "KV_ARGUMENTAIRES", "id": "ID_PROD" }
-  ],
-  "env": {
-    "dev": {
-      "kv_namespaces": [
-        { "binding": "KV_ARGUMENTAIRES", "id": "ID_DEV" }
-      ]
-    }
-  }
-}
+```toml
+[[kv_namespaces]]
+binding = "KV_ARGUMENTAIRES"
+id = "ID_PROD"
+
+[env.dev]
+[[env.dev.kv_namespaces]]
+binding = "KV_ARGUMENTAIRES"
+id = "ID_DEV"
 ```
 `wrangler kv namespace list` permet de retrouver les IDs si besoin.
 
@@ -85,10 +82,10 @@ Le jeton admin expire au bout d’une heure (`ADMIN_TOKEN_TTL_SECONDS`).
 cd workers-argumentaires
 npm install          # première fois seulement
 npm run build        # optionnel, TypeScript → JS (wrangler le fait automatiquement)
-wrangler deploy      # production
-wrangler deploy --env dev  # préproduction
+wrangler deploy --config ../wrangler.toml      # production
+wrangler deploy --config ../wrangler.toml --env dev  # préproduction
 ```
-Utilisez l’argument `--name` si vous déployez sur un compte différent. Pensez à tenir `wrangler.jsonc` et `package.json` synchronisés lorsque vous modifiez la compatibilité.
+Utilisez l’argument `--name` si vous déployez sur un compte différent. Pensez à tenir `wrangler.toml` et `package.json` synchronisés lorsque vous modifiez la compatibilité. Si vous exécutez la commande depuis `workers-argumentaires/`, ajoutez `--config ../wrangler.toml`.
 
 ## 7. Données initiales
 - `argumentaires.json` est chargée la première fois et stockée dans KV sous la clé `argumentaires.json`.
@@ -100,7 +97,7 @@ Utilisez l’argument `--name` si vous déployez sur un compte différent. Pense
 2. Dans un autre terminal :
    ```bash
    cd workers-argumentaires
-   wrangler dev --env dev
+   wrangler dev --config ../wrangler.toml --env dev
    ```
 3. Pour utiliser explicitement le Worker en local, définissez `ARGUMENTAIRES_API_URL` dans la console du navigateur ou ajoutez `data-api-base` sur `html`.
 4. `ci_test_api.py` n’utilise que `server.py`. Pour tester le Worker manuellement, jouez un `curl` contre l’URL retournée par `wrangler dev`.

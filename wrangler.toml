@@ -1,5 +1,5 @@
 name = "workers-argumentaires"
-main = "src/index.ts"
+main = "workers-argumentaires/src/index.ts"
 compatibility_date = "2025-09-19"
 
 [observability]

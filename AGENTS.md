@@ -13,6 +13,7 @@
 - `python3 -m py_compile server.py` mirrors the GitLab CI syntax check; run after Python edits.
 - `python3 ci_test_api.py` boots the local API, posts an argumentaire, then asserts it can be fetched (same smoke test as the GitLab pipeline).
 - `curl http://localhost:8000/api/argumentaires` verifies the API JSON payload after data changes.
+- Any `wrangler` command should be executed from the repo root or with `--config wrangler.toml` to pick up the shared configuration.
 
 ## Coding Style & Naming Conventions
 - Python: follow PEP 8, 4-space indentation, type hints, `snake_case` names, and keep JSON serialization with `ensure_ascii=False` for French content.

@@ -1,5 +1,5 @@
 {
   "scripts": {
-    "deploy": "cd workers-argumentaires && npx wrangler deploy --env=\"\""
+    "deploy": "node -e \"console.log('Cloudflare Pages build step: worker deploy handled by wrangler.toml configuration.')\""
   }
 }

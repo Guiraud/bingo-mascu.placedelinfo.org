@@ -22,7 +22,7 @@
 ### Cloudflare Worker
 - `workers-argumentaires/src/index.ts` réplique l’API en production : routes publiques, administration, Turnstile, rate-limit (10 requêtes/minute par IP) et stockage dans Workers KV.
 - Une liste d’origines autorisées est codée en dur (`STATIC_ALLOWED_ORIGINS`) et doit être ajustée dès qu’un nouvel environnement est mis en ligne (penser aussi à `_headers`).
-- Configuration dans `workers-argumentaires/wrangler.jsonc` avec `observability.enabled = true`, `compatibility_date` et les IDs de namespaces (`KV_ARGUMENTAIRES`).
+- Configuration centralisée dans `wrangler.toml` (racine du dépôt) avec `observability.enabled = true`, `compatibility_date` et les IDs de namespaces (`KV_ARGUMENTAIRES`). Exécutez toujours les commandes `wrangler` depuis la racine ou en passant `--config wrangler.toml` (les scripts fournis l’ajoutent automatiquement).
 
 ### Données métiers
 - `argumentaires.json` : graine des argumentaires utilisée par le Worker et par la première exécution du serveur Python.
@@ -59,7 +59,7 @@
 4. (Facultatif) Ouvrez un Worker de développement :
    ```bash
    cd workers-argumentaires
-   npm run dev        # alias pour `wrangler dev --env dev`
+   npm run dev        # alias pour `wrangler dev --config ../wrangler.toml --env dev`
    ```
    Puis définissez `ARGUMENTAIRES_API_URL` dans votre navigateur si vous voulez cibler explicitement le Worker.
 
@@ -133,6 +133,8 @@ pages:
    - Le script remplace temporairement la clé dans `bdd.html`, pousse les secrets via `wrangler secret put` puis lance `wrangler deploy` (prod et/ou dev) avant de restaurer le fichier local.
 
 ## Cloudflare
+Le build Cloudflare Pages est configuré sur `npm run deploy` ; ce script ne fait qu’afficher un rappel, le Worker étant déployé via `scripts/deploy.sh` ou manuellement avec `wrangler deploy --config wrangler.toml`.
+
 ### DNS & Pages
 - **Sous-domaine recommandé** : créez un enregistrement `CNAME` (`www` → `votre-utilisateur.github.io`) et activez le proxy (nuage orange).
 - **Apex** : utilisez le flattening Cloudflare (`CNAME @ → votre-utilisateur.github.io`) puis, si besoin, une règle 301 vers `www`.
