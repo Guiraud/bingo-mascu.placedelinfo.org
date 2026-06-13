@@ -4,9 +4,6 @@ from __future__ import annotations
 
 import json
 import sqlite3
-import hashlib
-import secrets
-import time
 from http import HTTPStatus
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
@@ -19,112 +16,6 @@ BASE_DIR = Path(__file__).resolve().parent
 LEGACY_DB_PATH = BASE_DIR / "argumentaires.db"
 JSON_DB_PATH = BASE_DIR / "argumentaires.json"
 DB_LOCK = Lock()
-
-ADMIN_PASSWORD_HASH = "23f6249ea0388a75929454e3faf127af2b80bd69bdcbf45d1b4de399da47d51a"
-ADMIN_TOKEN_TTL = 3600  # 1 heure
-ISSUED_TOKENS: dict[str, float] = {}
-TOKEN_LOCK = Lock()
-
-
-def _hash_password(password: str) -> str:
-    return hashlib.sha256(password.encode('utf-8')).hexdigest()
-
-
-def _generate_token() -> str:
-    return secrets.token_urlsafe(32)
-
-
-def _load_json_payload(handler: SimpleHTTPRequestHandler, *, max_length: int = 100_000) -> dict[str, object]:
-    length = int(handler.headers.get("Content-Length", "0"))
-    if length <= 0 or length > max_length:
-        raise ValueError("Corps JSON invalide")
-    raw = handler.rfile.read(length)
-    try:
-        payload = json.loads(raw)
-    except json.JSONDecodeError as exc:
-        raise ValueError("JSON invalide") from exc
-    if not isinstance(payload, dict):
-        raise ValueError("Format JSON inattendu")
-    return payload
-
-
-def _phenomena_store_path() -> Path:
-    return BASE_DIR / "phenomenes.json"
-
-
-def _load_phenomena_store() -> dict[str, dict[str, object]]:
-    path = _phenomena_store_path()
-    if not path.exists():
-        return {}
-    try:
-        with path.open('r', encoding='utf-8') as handle:
-            data = json.load(handle)
-    except json.JSONDecodeError:
-        return {}
-    if not isinstance(data, list):
-        return {}
-    store: dict[str, dict[str, object]] = {}
-    for item in data:
-        if isinstance(item, dict) and item.get('nom'):
-            store[str(item['nom'])] = item
-    return store
-
-
-def _write_phenomena_store(items: list[dict[str, object]]) -> None:
-    path = _phenomena_store_path()
-    path.write_text(json.dumps(items, ensure_ascii=False, indent=2), encoding='utf-8')
-
-
-def fetch_pat_phenomena() -> list[dict[str, object]]:
-    return list(_load_phenomena_store().values())
-
-
-def _upsert_phenomenon(name: str, description: str, sources: list[dict[str, str]]) -> None:
-    with DB_LOCK:
-        store = _load_phenomena_store()
-        existing = store.get(name)
-        identifier = existing.get("id") if existing else name
-        store[name] = {
-            "nom": name,
-            "id": identifier,
-            "description": description,
-            "sources": sources,
-        }
-        _write_phenomena_store(list(store.values()))
-
-
-def _delete_phenomenon(name: str) -> None:
-    with DB_LOCK:
-        store = _load_phenomena_store()
-        if name in store:
-            store.pop(name)
-            _write_phenomena_store(list(store.values()))
-
-
-def _normalize_sources(raw: object) -> list[dict[str, str]]:
-    if raw is None:
-        return []
-    if not isinstance(raw, list):
-        raise ValueError("'sources' doit être un tableau d'objets")
-    cleaned: list[dict[str, str]] = []
-    for entry in raw:
-        if not isinstance(entry, dict):
-            raise ValueError("Source invalide")
-        titre = (entry.get("titre") or "").strip()
-        auteur = (entry.get("auteur") or "").strip()
-        url = (entry.get("url") or "").strip()
-        if not titre and not url:
-            continue
-        item: dict[str, str] = {}
-        if titre:
-            item["titre"] = titre
-        if auteur:
-            item["auteur"] = auteur
-        if url:
-            item["url"] = url
-        cleaned.append(item)
-    return cleaned
-
 
 INITIAL_ARGUMENTAIRES = [
     {
@@ -664,38 +555,10 @@ class RequestHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(BASE_DIR), **kwargs)
 
-    def _require_admin(self) -> None:
-        token = self.headers.get("x-admin-token", "").strip()
-        with TOKEN_LOCK:
-            expiry = ISSUED_TOKENS.get(token)
-            if not expiry:
-                raise PermissionError
-            if expiry < time.time():
-                ISSUED_TOKENS.pop(token, None)
-                raise PermissionError
-
-    def _handle_admin_login(self) -> None:
-        try:
-            payload = _load_json_payload(self, max_length=4096)
-        except ValueError as exc:
-            self._send_json(HTTPStatus.BAD_REQUEST, {"error": str(exc)})
-            return
-        password = str(payload.get("password", "")).strip()
-        if not password:
-            self._send_json(HTTPStatus.BAD_REQUEST, {"error": "Mot de passe requis"})
-            return
-        if _hash_password(password) != ADMIN_PASSWORD_HASH:
-            self._send_json(HTTPStatus.UNAUTHORIZED, {"error": "Mot de passe incorrect"})
-            return
-        token = _generate_token()
-        with TOKEN_LOCK:
-            ISSUED_TOKENS[token] = time.time() + ADMIN_TOKEN_TTL
-        self._send_json(HTTPStatus.OK, {"token": token})
-
     def end_headers(self):
         if self.path.startswith("/api/"):
             self.send_header("Access-Control-Allow-Origin", "*")
-            self.send_header("Access-Control-Allow-Headers", "Content-Type, X-Admin-Token")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type")
             self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         super().end_headers()
 
@@ -707,56 +570,15 @@ class RequestHandler(SimpleHTTPRequestHandler):
         parsed = urlparse(self.path)
         if parsed.path == "/api/argumentaires":
             self._handle_get_argumentaires()
-            return
-        if parsed.path == "/api/admin/argumentaires":
-            try:
-                self._require_admin()
-            except PermissionError:
-                self._send_json(HTTPStatus.UNAUTHORIZED, {"error": "Authentification requise"})
-                return
-            data = fetch_argumentaires()
-            self._send_json(HTTPStatus.OK, data)
-            return
-        if parsed.path == "/api/admin/phenomenes":
-            try:
-                self._require_admin()
-            except PermissionError:
-                self._send_json(HTTPStatus.UNAUTHORIZED, {"error": "Authentification requise"})
-                return
-            data = fetch_pat_phenomena()
-            self._send_json(HTTPStatus.OK, data)
-            return
-        super().do_GET()
+        else:
+            super().do_GET()
 
     def do_POST(self):  # noqa: N802
         parsed = urlparse(self.path)
-        try:
-            if parsed.path == "/api/argumentaires":
-                self._handle_post_argumentaire()
-                return
-            if parsed.path == "/api/admin/login":
-                self._handle_admin_login()
-                return
-            if parsed.path == "/api/admin/argumentaires":
-                self._require_admin()
-                self._handle_admin_arguments()
-                return
-            if parsed.path == "/api/admin/argumentaires/delete":
-                self._require_admin()
-                self._handle_admin_arguments_delete()
-                return
-            if parsed.path == "/api/admin/phenomenes":
-                self._require_admin()
-                self._handle_admin_phenomena()
-                return
-            if parsed.path == "/api/admin/phenomenes/delete":
-                self._require_admin()
-                self._handle_admin_phenomena_delete()
-                return
-        except PermissionError:
-            self._send_json(HTTPStatus.UNAUTHORIZED, {"error": "Authentification requise"})
-            return
-        self.send_error(HTTPStatus.NOT_FOUND, "Endpoint inconnu")
+        if parsed.path == "/api/argumentaires":
+            self._handle_post_argumentaire()
+        else:
+            self.send_error(HTTPStatus.NOT_FOUND, "Endpoint inconnu")
 
     def _handle_get_argumentaires(self) -> None:
         data = fetch_argumentaires()
@@ -791,77 +613,38 @@ class RequestHandler(SimpleHTTPRequestHandler):
             )
             return
 
-        try:
-            sources = _normalize_sources(sources_raw)
-        except ValueError as exc:
-            self._send_json(HTTPStatus.BAD_REQUEST, {"error": str(exc)})
-            return
+        sources: list[dict[str, str]]
+        if sources_raw is None:
+            sources = []
+        elif isinstance(sources_raw, list):
+            sources = []
+            for entry in sources_raw:
+                if not isinstance(entry, dict):
+                    continue
+                titre = (entry.get("titre") or "").strip()
+                auteur = (entry.get("auteur") or "").strip()
+                url = (entry.get("url") or "").strip()
+                if not titre and not url:
+                    continue
+                item: dict[str, str] = {}
+                if titre:
+                    item["titre"] = titre
+                if auteur:
+                    item["auteur"] = auteur
+                if url:
+                    item["url"] = url
+                sources.append(item)
+        else:
+            return self._send_json(
+                HTTPStatus.BAD_REQUEST,
+                {"error": "'sources' doit être un tableau d'objets"},
+            )
 
         upsert_argumentaire(phrase, argumentaire, sources)
         self._send_json(
             HTTPStatus.OK,
             {"phrase": phrase, "argumentaire": argumentaire, "sources": sources},
         )
-
-    def _handle_admin_arguments(self) -> None:
-        try:
-            payload = _load_json_payload(self)
-            phrase = str(payload.get("name", "")).strip()
-            argumentaire = str(payload.get("content", "")).strip()
-            sources = _normalize_sources(payload.get("sources"))
-        except ValueError as exc:
-            self._send_json(HTTPStatus.BAD_REQUEST, {"error": str(exc)})
-            return
-        if not phrase or not argumentaire:
-            self._send_json(HTTPStatus.BAD_REQUEST, {"error": "Intitulé et contenu requis"})
-            return
-        upsert_argumentaire(phrase, argumentaire, sources)
-        self._send_json(HTTPStatus.NO_CONTENT, {})
-
-    def _handle_admin_arguments_delete(self) -> None:
-        try:
-            payload = _load_json_payload(self)
-        except ValueError as exc:
-            self._send_json(HTTPStatus.BAD_REQUEST, {"error": str(exc)})
-            return
-        phrase = str(payload.get("name", "")).strip()
-        if not phrase:
-            self._send_json(HTTPStatus.BAD_REQUEST, {"error": "Nom requis"})
-            return
-        with DB_LOCK:
-            store = _load_store_map()
-            if phrase in store:
-                store.pop(phrase)
-                _write_json_store(list(store.values()))
-        self._send_json(HTTPStatus.NO_CONTENT, {})
-
-    def _handle_admin_phenomena(self) -> None:
-        try:
-            payload = _load_json_payload(self)
-            name = str(payload.get("name", "")).strip()
-            description = str(payload.get("content", "")).strip()
-            sources = _normalize_sources(payload.get("sources"))
-        except ValueError as exc:
-            self._send_json(HTTPStatus.BAD_REQUEST, {"error": str(exc)})
-            return
-        if not name or not description:
-            self._send_json(HTTPStatus.BAD_REQUEST, {"error": "Intitulé et contenu requis"})
-            return
-        _upsert_phenomenon(name, description, sources)
-        self._send_json(HTTPStatus.NO_CONTENT, {})
-
-    def _handle_admin_phenomena_delete(self) -> None:
-        try:
-            payload = _load_json_payload(self)
-        except ValueError as exc:
-            self._send_json(HTTPStatus.BAD_REQUEST, {"error": str(exc)})
-            return
-        name = str(payload.get("name", "")).strip()
-        if not name:
-            self._send_json(HTTPStatus.BAD_REQUEST, {"error": "Nom requis"})
-            return
-        _delete_phenomenon(name)
-        self._send_json(HTTPStatus.NO_CONTENT, {})
 
     def _send_json(self, status: HTTPStatus, payload: object) -> None:
         encoded = json.dumps(payload, ensure_ascii=False).encode("utf-8")

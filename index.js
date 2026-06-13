@@ -699,20 +699,15 @@
   const detailsHomeNextSibling = detailsEl.nextElementSibling;
   const newBtn = document.getElementById('new');
   const clearBtn = document.getElementById('clear');
-  const downloadBtn = document.getElementById('download');
+  const copyBtn = document.getElementById('copy');
   const sizeSel = document.getElementById('size');
   const contextInput = document.getElementById('contextInput');
-  const detailEmbedQuery = window.matchMedia('(min-width: 900px)');
-  const compact4Query = window.matchMedia('(max-width: 520px)');
-  const compact3Query = window.matchMedia('(max-width: 400px)');
-  const sizeOptionFive = sizeSel?.querySelector('option[value="5"]') || null;
-  const sizeOptionFour = sizeSel?.querySelector('option[value="4"]') || null;
 
   let size = parseInt(sizeSel.value, 10);
-  let previousDesktopSize = null;
   let lastDetailHTML = '';
   let lastBingoText = '';
   let boardMatrix = [];
+  let playableCellCount = size * size;
 
   function randomBetween(min, max) {
     const low = Math.ceil(min);
@@ -763,53 +758,6 @@
     const html = `<h2>${phenomenon.nom}</h2><p>${phenomenon.description}</p>${sourcesHtml}`;
     setDetails(html, { persist: !transient });
   }
-
-  function isPhenomenonCell(cell) {
-    return Boolean(cell && cell.dataset && cell.dataset.cellType === 'phenomenon');
-  }
-
-  function enforceCompactBoardSize({ rebuild = false } = {}) {
-    if (!sizeSel) return;
-
-    const disableFive = compact4Query.matches;
-    const disableFour = compact3Query.matches;
-
-    if (sizeOptionFive) sizeOptionFive.disabled = disableFive;
-    if (sizeOptionFour) sizeOptionFour.disabled = disableFour;
-
-    const current = parseInt(sizeSel.value, 10) || 5;
-    let target = null;
-    if (disableFour) {
-      target = 3;
-    } else if (disableFive) {
-      target = 4;
-    }
-
-    let sizeChanged = false;
-    if (target && current > target) {
-      if (previousDesktopSize === null || current > previousDesktopSize) {
-        previousDesktopSize = current;
-      }
-      sizeSel.value = String(target);
-      size = target;
-      sizeChanged = true;
-    } else if (!target && previousDesktopSize !== null) {
-      const option = sizeSel.querySelector(`option[value="${previousDesktopSize}"]`);
-      if (option && !option.disabled) {
-        sizeSel.value = String(previousDesktopSize);
-        sizeChanged = parseInt(sizeSel.value, 10) !== current;
-      }
-      previousDesktopSize = null;
-    }
-
-    size = parseInt(sizeSel.value, 10);
-    if (rebuild && sizeChanged) {
-      buildBoard();
-    }
-    return sizeChanged;
-  }
-
-  enforceCompactBoardSize();
 
   function addGlitterFrame(slot) {
     const starsContainer = document.createElement('div');
@@ -871,10 +819,9 @@
         : size === 3
           ? { rows: [1], cols: [1], area: '2 / 2 / span 1 / span 1' }
           : null;
-    const embedDetail = detailConfig && detailEmbedQuery.matches;
-    const effectiveDetail = embedDetail ? detailConfig : null;
-    const detailSlotCount = effectiveDetail ? effectiveDetail.rows.length * effectiveDetail.cols.length : 0;
+    const detailSlotCount = detailConfig ? detailConfig.rows.length * detailConfig.cols.length : 0;
     const availableSlots = totalCells - detailSlotCount;
+    playableCellCount = availableSlots;
     const picked = takePhrases(availableSlots, useFree);
     renderDefaultDetails();
     moveDetailsHome();
@@ -883,10 +830,10 @@
     boardMatrix = Array.from({ length: size }, () => Array(size).fill(null));
 
     let detailSlotElement = null;
-    if (effectiveDetail) {
+    if (detailConfig) {
       detailSlotElement = document.createElement('div');
       detailSlotElement.className = 'board-detail-slot';
-      detailSlotElement.style.gridArea = effectiveDetail.area;
+      detailSlotElement.style.gridArea = detailConfig.area;
       addGlitterFrame(detailSlotElement);
       const detailWrapper = document.createElement('div');
       detailWrapper.className = 'board-detail-wrapper';
@@ -896,13 +843,14 @@
       detailsEl.classList.add('board-details');
     }
 
-    const detailSkip = effectiveDetail
-      ? new Set(effectiveDetail.rows.flatMap(r => effectiveDetail.cols.map(c => `${r}-${c}`)))
+    const detailSkip = detailConfig
+      ? new Set(detailConfig.rows.flatMap(r => detailConfig.cols.map(c => `${r}-${c}`)))
       : null;
-    const oneThirdCap = Math.max(1, Math.floor(availableSlots / 3));
-    const maxPhenomena = Math.min(embedDetail ? 6 : 5, oneThirdCap, PATRIARCHAL_PHENOMENA.length, availableSlots);
-    const minPhenomena = Math.max(1, Math.min(embedDetail ? 3 : 2, maxPhenomena));
-    const desiredPhenomenaCount = maxPhenomena > 0 ? randomBetween(minPhenomena, maxPhenomena) : 0;
+    const phenMaxBase = Math.min(6, availableSlots);
+    const phenMinBase = Math.min(3, availableSlots);
+    const phenMin = phenMaxBase > 0 ? Math.max(1, Math.min(phenMinBase, phenMaxBase)) : 0;
+    const phenMax = phenMaxBase;
+    const desiredPhenomenaCount = phenMax > 0 ? Math.min(randomBetween(phenMin, phenMax), PATRIARCHAL_PHENOMENA.length) : 0;
     const indicesPool = rngShuffle(Array.from({ length: availableSlots }, (_, i) => i));
     const selectedIndices = new Set(indicesPool.slice(0, desiredPhenomenaCount));
     const selectedPhenomena = rngShuffle(PATRIARCHAL_PHENOMENA).slice(0, selectedIndices.size);
@@ -935,37 +883,26 @@
           cell.dataset.phenomenonId = phenomenon.id;
           cell.__phenomenon = phenomenon;
           cell.classList.add('phenomenon-cell');
-          cell.setAttribute('aria-pressed', 'false');
           cell.addEventListener('mouseenter', () => renderPhenomenonDetails(phenomenon, { transient: true }));
           cell.addEventListener('mouseleave', restoreLastDetails);
-          cell.addEventListener('click', () => {
-            renderPhenomenonDetails(phenomenon);
-          });
         } else {
           label.textContent = isCenter ? 'Case libre' : picked[phraseIndex++];
-          cell.dataset.cellType = 'phrase';
-          cell.setAttribute('aria-pressed', isCenter ? 'true' : 'false');
-          cell.addEventListener('click', () => toggleCell(cell));
         }
         cell.appendChild(label);
+        cell.addEventListener('click', () => toggleCell(cell));
         boardEl.appendChild(cell);
         boardMatrix[r][c] = cell;
         slotIndex++;
       }
     }
 
+    playableCellCount = slotIndex;
+
     lastBingoText = 'Pas de bingo';
     updateStats();
   }
 
   function toggleCell(cell) {
-    if (isPhenomenonCell(cell)) {
-      const phenomenon = PHENOMENA_BY_ID.get(cell.dataset.phenomenonId) || cell.__phenomenon;
-      if (phenomenon) {
-        renderPhenomenonDetails(phenomenon);
-      }
-      return;
-    }
     cell.classList.toggle('marked');
     const pressed = cell.classList.contains('marked');
     cell.setAttribute('aria-pressed', pressed ? 'true' : 'false');
@@ -973,6 +910,14 @@
     updateStats();
 
     if (!pressed) return;
+
+    if (cell.dataset.cellType === 'phenomenon') {
+      const phenomenon = PHENOMENA_BY_ID.get(cell.dataset.phenomenonId) || cell.__phenomenon;
+      if (phenomenon) {
+        renderPhenomenonDetails(phenomenon);
+        return;
+      }
+    }
 
     const phrase = cell.textContent.trim();
     showArgumentaire(phrase);
@@ -996,15 +941,16 @@
     return boardMatrix.flat().filter(Boolean);
   }
 
+  function isMarked(r, c) {
+    const cell = boardMatrix[r]?.[c] || null;
+    return Boolean(cell && cell.classList.contains('marked'));
+  }
+
   function clearMarks() {
     gridCells().forEach(el => {
+      if (!el.classList.contains('free')) el.classList.remove('marked', 'bingo');
       el.classList.remove('bingo');
-      if (isPhenomenonCell(el)) {
-        el.setAttribute('aria-pressed', 'false');
-        return;
-      }
-      el.classList.remove('marked');
-      el.setAttribute('aria-pressed', 'false');
+      el.setAttribute('aria-pressed', el.classList.contains('marked') ? 'true' : 'false');
     });
     lastBingoText = 'Pas de bingo';
     updateStats();
@@ -1027,11 +973,7 @@
       let full = true;
       for (const [r, c] of line) {
         const cell = boardMatrix[r]?.[c] || null;
-        if (!cell) {
-          full = false;
-          break;
-        }
-        if (!isPhenomenonCell(cell) && !cell.classList.contains('marked')) {
+        if (!cell || !cell.classList.contains('marked')) {
           full = false;
           break;
         }
@@ -1046,9 +988,8 @@
   }
 
   function updateStats() {
-    const playableCells = gridCells().filter(cell => !isPhenomenonCell(cell));
-    const total = playableCells.length || 1;
-    const marked = playableCells.filter(x => x.classList.contains('marked')).length;
+    const total = Math.max(1, playableCellCount);
+    const marked = gridCells().filter(x => x.classList.contains('marked')).length;
     const pct = Math.round(marked * 100 / total);
     const parts = [`${marked}/${total} cochées`, `${pct}%`];
     if (lastBingoText) {
@@ -1057,177 +998,18 @@
     statsEl.textContent = parts.join(' • ');
   }
 
-  function downloadPdf() {
-    const jsPDFLib = window.jspdf;
-    if (!jsPDFLib || typeof jsPDFLib.jsPDF !== 'function') {
-      alert('Export PDF indisponible : librairie manquante.');
-      return;
-    }
-
-    const originalLabel = downloadBtn ? downloadBtn.textContent : '';
-    if (downloadBtn) {
-      downloadBtn.disabled = true;
-      downloadBtn.textContent = 'Préparation du PDF…';
-    }
-
-    try {
-      const { jsPDF } = jsPDFLib;
-      const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
-      const margin = 48;
-      const maxWidth = doc.internal.pageSize.getWidth() - margin * 2;
-      let cursorY = margin;
-
-      const pad = (n) => String(n).padStart(2, '0');
-      const ensureSpace = (height) => {
-        const pageHeight = doc.internal.pageSize.getHeight();
-        if (cursorY + height > pageHeight - margin) {
-          doc.addPage();
-          cursorY = margin;
-        }
-      };
-
-      const addParagraph = (text, spacing = 6) => {
-        if (!text) return;
-        const lines = doc.splitTextToSize(text, maxWidth);
-        lines.forEach(line => {
-          ensureSpace(14);
-          doc.text(line, margin, cursorY);
-          cursorY += 14;
-        });
-        cursorY += spacing;
-      };
-
-      const addSectionTitle = (title) => {
-        ensureSpace(20);
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(16);
-        doc.text(title, margin, cursorY);
-        cursorY += 18;
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(12);
-      };
-
-      const addListEntry = (heading, paragraphs) => {
-        ensureSpace(16);
-        doc.setFont('helvetica', 'bold');
-        doc.text(heading, margin, cursorY);
-        cursorY += 14;
-        doc.setFont('helvetica', 'normal');
-        if (Array.isArray(paragraphs)) {
-          paragraphs.forEach((text, idx) => addParagraph(text, idx === paragraphs.length - 1 ? 8 : 4));
-        } else if (paragraphs) {
-          addParagraph(paragraphs, 8);
-        } else {
-          cursorY += 4;
-        }
-      };
-
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(18);
-      doc.text('Bingo féministe - Rapport de session', margin, cursorY);
-      cursorY += 24;
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(12);
-
-      const now = new Date();
-      const timestamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-      addParagraph(`Export généré le ${timestamp}.`, 8);
-      addParagraph(`Taille de la grille : ${size} x ${size}.`, 10);
-
-      addSectionTitle('Contexte');
-      addParagraph(contextInput.value.trim() || 'Non précisé.', 10);
-
-      const playableCells = gridCells().filter(cell => !isPhenomenonCell(cell));
-      const total = playableCells.length;
-      const markedCells = playableCells.filter(cell => cell.classList.contains('marked'));
-      const unmarkedCells = playableCells.filter(cell => !cell.classList.contains('marked'));
-      const markedCount = markedCells.length;
-      const pct = total ? Math.round(markedCount * 100 / total) : 0;
-
-      addSectionTitle('Résumé');
-      addParagraph(`Cases cochées : ${markedCount}/${total} (${pct} %).`, 4);
-      addParagraph(lastBingoText || 'Pas de ligne complétée pour l’instant.', 10);
-
-      addSectionTitle('Cases cochées');
-      if (markedCells.length === 0) {
-        addParagraph('Aucune case cochée.', 10);
-      } else {
-        markedCells.forEach((cell, index) => {
-          const phrase = cell.textContent.trim();
-          const argumentaire = ARGUMENTAIRES[phrase] || '';
-          const sources = ARG_SOURCES[phrase] || [];
-          const paragraphs = [];
-          if (argumentaire) {
-            paragraphs.push(argumentaire);
-          }
-          if (sources.length) {
-            const sourceText = ['Sources :'].concat(
-              sources.map(src => {
-                const titre = src.titre || 'Source';
-                const auteur = src.auteur ? ` (${src.auteur})` : '';
-                const url = src.url ? ` - ${src.url}` : '';
-                return `${titre}${auteur}${url}`;
-              })
-            ).join('\n');
-            paragraphs.push(sourceText);
-          }
-          addListEntry(`${index + 1}. ${phrase}`, paragraphs);
-        });
-      }
-
-      addSectionTitle('Cases restantes');
-      if (unmarkedCells.length) {
-        const lines = unmarkedCells.map(cell => `- ${cell.textContent.trim()}`).join('\n');
-        addParagraph(lines, 10);
-      } else {
-        addParagraph('Toutes les cases ont été cochées.', 10);
-      }
-
-      const phenomenonCells = gridCells().filter(isPhenomenonCell);
-      addSectionTitle('Phénomènes observés');
-      if (phenomenonCells.length) {
-        const lines = phenomenonCells.map((cell, idx) => `${idx + 1}. ${cell.textContent.trim()}`);
-        addParagraph(lines.join('\n'), 10);
-      } else {
-        addParagraph('Aucun phénomène spécial n’a été affiché sur cette grille.', 10);
-      }
-
-      const filename = `bingo-rapport-${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}.pdf`;
-      doc.save(filename);
-    } finally {
-      if (downloadBtn) {
-        setTimeout(() => {
-          downloadBtn.disabled = false;
-          downloadBtn.textContent = originalLabel || 'Télécharger le rapport PDF';
-        }, 400);
-      }
-    }
+  function copyList() {
+    const cells = gridCells().map(el => el.textContent.trim()).filter(t => t && t !== 'Case libre');
+    const txt = cells.join('\n');
+    navigator.clipboard.writeText(txt).then(() => {
+      copyBtn.textContent = 'Liste copiée';
+      setTimeout(() => copyBtn.textContent = 'Copier la liste tirée', 1200);
+    });
   }
   newBtn.addEventListener('click', buildBoard);
   clearBtn.addEventListener('click', clearMarks);
-  if (downloadBtn) {
-    downloadBtn.addEventListener('click', downloadPdf);
-  }
-  sizeSel.addEventListener('change', () => {
-    size = parseInt(sizeSel.value, 10);
-    enforceCompactBoardSize({ rebuild: false });
-    buildBoard();
-  });
-  const handleDetailQueryChange = () => buildBoard();
-  if (typeof detailEmbedQuery.addEventListener === 'function') {
-    detailEmbedQuery.addEventListener('change', handleDetailQueryChange);
-  } else if (typeof detailEmbedQuery.addListener === 'function') {
-    detailEmbedQuery.addListener(handleDetailQueryChange);
-  }
-  const handleCompactBoardChange = () => enforceCompactBoardSize({ rebuild: true });
-  [compact4Query, compact3Query].forEach(query => {
-    if (!query) return;
-    if (typeof query.addEventListener === 'function') {
-      query.addEventListener('change', handleCompactBoardChange);
-    } else if (typeof query.addListener === 'function') {
-      query.addListener(handleCompactBoardChange);
-    }
-  });
+  copyBtn.addEventListener('click', copyList);
+  sizeSel.addEventListener('change', buildBoard);
 
   async function loadArgumentaires() {
     try {

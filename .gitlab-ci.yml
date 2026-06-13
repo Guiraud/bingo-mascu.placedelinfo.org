@@ -6,22 +6,12 @@ stages:
 
 variables:
   PYTHONPYCACHEPREFIX: .cache
-  CLOUDFLARE_API_TOKEN: szFDP3rlizNvrSzwGUgZmCI5ASt5WzvzWasqXFOn
 
 test:python:
   stage: test
   script:
     - python3 -m py_compile server.py
     - python3 ci_test_api.py
-  only:
-    - dev
-
-deploy:workers:
-  stage: deploy
-  image: node:20
-  script:
-    - cd workers-argumentaires
-    - npx wrangler deploy --env=""
   only:
     - dev
 

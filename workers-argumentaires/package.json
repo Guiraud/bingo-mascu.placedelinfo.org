@@ -3,11 +3,11 @@
 	"version": "0.0.0",
 	"private": true,
 	"scripts": {
-		"deploy": "wrangler deploy --config ../wrangler.toml",
-		"dev": "wrangler dev --config ../wrangler.toml --env dev",
-		"start": "wrangler dev --config ../wrangler.toml --env dev",
+		"deploy": "wrangler deploy",
+		"dev": "wrangler dev",
+		"start": "wrangler dev",
 		"test": "vitest",
-		"cf-typegen": "wrangler types --config ../wrangler.toml"
+		"cf-typegen": "wrangler types"
 	},
 	"devDependencies": {
 		"@cloudflare/vitest-pool-workers": "^0.8.19",

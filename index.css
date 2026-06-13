@@ -44,31 +44,16 @@
   }
 }
 
-html, body {
-  min-height: 100%;
-  background-color: #2c0f3f;
-}
-
 * { box-sizing: border-box }
 body {
   margin:0;
   font-family: system-ui, sans-serif;
-  background-image: radial-gradient(140% 120% at 50% -10%, #3D144D 0%, #261038 55%, #11051e 100%);
+  background-color: #4B1F58;
+  background-image: radial-gradient(1200px 800px at 50% -10%, #3D144D, #4B1F58 75%, #3D144D 120%);
   background-repeat: no-repeat;
-  background-attachment: scroll;
-  background-size: 140% 140%;
+  background-size: 1600px 1200px;
   background-position: center top;
   color: var(--ink);
-  overflow-x: hidden;
-}
-
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(18, 5, 30, 0.6), rgba(18, 5, 30, 0.9));
-  pointer-events: none;
-  z-index: -1;
 }
 a {
   color: var(--accent);
@@ -172,8 +157,7 @@ input[type="text"] { cursor:text; min-width: 180px }
   position: relative;
   z-index: 0;
   flex: 1 1 520px;
-  width: min(100%, 520px);
-  max-width: 520px;
+  max-width:680px;
   aspect-ratio: 1 / 1;
   display:grid;
   grid-template-columns: repeat(5, 1fr);
@@ -346,69 +330,6 @@ input[type="text"] { cursor:text; min-width: 180px }
   }
   .details:not(.board-details) {
     margin-top: 16px;
-  }
-}
-
-@media (max-width: 600px) {
-  header {
-    padding: 16px 12px 12px;
-  }
-  h1 {
-    font-size: clamp(20px, 7vw, 28px);
-  }
-  .main-nav {
-    gap: 8px;
-  }
-  .toolbar {
-    margin: 12px 0 16px;
-    gap: 8px;
-    padding: 0 4px;
-  }
-  .toolbar .context-input {
-    flex: 1 1 100%;
-    min-width: 0;
-  }
-  .toolbar button,
-  .toolbar .link-button {
-    width: 100%;
-    justify-content: center;
-  }
-  .toolbar label {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    align-items: flex-start;
-  }
-  .toolbar label select {
-    width: 100%;
-  }
-  .container {
-    gap: 16px;
-    padding: 0 12px 24px;
-  }
-  .board {
-    width: min(92vw, 480px);
-    max-width: 100%;
-    aspect-ratio: 1;
-    gap: 6px;
-  }
-  .cell {
-    padding: 8px;
-    border-radius: 14px;
-    font-size: clamp(11px, 3.7vw, 14px);
-  }
-  .cell .label {
-    padding: 4px;
-  }
-  .stats {
-    flex-direction: column;
-    gap: 6px;
-    font-size: 13px;
-    padding: 0 12px;
-  }
-  .details {
-    padding: 14px;
   }
 }
 

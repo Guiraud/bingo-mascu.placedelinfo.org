@@ -50,15 +50,9 @@ fi
 ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 BDD_FILE="$ROOT_DIR/bdd.html"
 WORKER_DIR="$ROOT_DIR/workers-argumentaires"
-WRANGLER_CONFIG="$ROOT_DIR/wrangler.toml"
 
 if [[ ! -d "$WORKER_DIR" ]]; then
   echo "Cannot find Cloudflare Worker project at $WORKER_DIR" >&2
-  exit 1
-fi
-
-if [[ ! -f "$WRANGLER_CONFIG" ]]; then
-  echo "Cannot find wrangler configuration at $WRANGLER_CONFIG" >&2
   exit 1
 fi
 
@@ -75,8 +69,8 @@ fi
 
 run_wrangler() {
   (
-    cd "$ROOT_DIR"
-    "${WRANGLER_CMD[@]}" --config "$WRANGLER_CONFIG" "$@"
+    cd "$WORKER_DIR"
+    "${WRANGLER_CMD[@]}" "$@"
   )
 }
 
