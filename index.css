@@ -386,3 +386,10 @@ input[type="text"] { cursor:text; min-width: 180px }
   color: var(--muted);
   font-size: 14px;
 }
+
+@keyframes csss-shift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes csss-pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.07);opacity:.85}}
+.csss-banner{display:block;background:linear-gradient(90deg,#ff006e,#ff7a00,#ffd200,#ff006e);background-size:300% 100%;animation:csss-shift 6s ease infinite;color:#fff;text-decoration:none;padding:13px 16px;text-align:center;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:1rem;font-weight:700;line-height:1.45;box-shadow:0 3px 14px rgba(255,0,110,.5);text-shadow:0 1px 2px rgba(0,0,0,.4)}
+.csss-banner:hover{filter:brightness(1.1)}
+.csss-cta{display:inline-block;margin-left:8px;padding:3px 14px;border-radius:999px;background:rgba(0,0,0,.28);white-space:nowrap;animation:csss-pulse 1.6s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.csss-banner,.csss-cta{animation:none}}
