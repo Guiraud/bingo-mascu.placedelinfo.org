@@ -746,15 +746,19 @@
     }
   }
 
-  function renderPhenomenonDetails(phenomenon, { transient = false } = {}) {
-    if (!phenomenon) return;
-    const list = (phenomenon.sources || []).map(src => {
+  function renderSourcesHtml(sources) {
+    const items = (sources || []).map(src => {
       const titre = src.titre || 'Source';
       const auteur = src.auteur ? ` (${src.auteur})` : '';
       const link = src.url ? `<a href="${src.url}" target="_blank" rel="noopener">${titre}</a>` : titre;
       return `<li>${link}${auteur}</li>`;
     }).join('');
-    const sourcesHtml = list ? `<h3>Sources</h3><ul>${list}</ul>` : '';
+    return items ? `<h3>Sources</h3><ul>${items}</ul>` : '';
+  }
+
+  function renderPhenomenonDetails(phenomenon, { transient = false } = {}) {
+    if (!phenomenon) return;
+    const sourcesHtml = renderSourcesHtml(phenomenon.sources);
     const html = `<h2>${phenomenon.nom}</h2><p>${phenomenon.description}</p>${sourcesHtml}`;
     setDetails(html, { persist: !transient });
   }
@@ -926,14 +930,7 @@
   function showArgumentaire(phrase) {
     const arg = ARGUMENTAIRES[phrase] || "Pas encore d'argumentaire détaillé pour cette phrase.";
     const sources = ARG_SOURCES[phrase] || [];
-    const sourcesHtml = sources.length
-      ? `<h3>Sources</h3><ul>${sources.map(src => {
-          const titre = src.titre || 'Source';
-          const auteur = src.auteur ? ` (${src.auteur})` : '';
-          const url = src.url ? `<a href="${src.url}" target="_blank" rel="noopener">${titre}</a>` : titre;
-          return `<li>${url}${auteur}</li>`;
-        }).join('')}</ul>`
-      : '';
+    const sourcesHtml = renderSourcesHtml(sources);
     setDetails(`<h2>${phrase}</h2><p>${arg}</p>${sourcesHtml}<p><strong>Contexte :</strong> ${contextInput.value || 'non précisé'}</p>`);
   }
 
