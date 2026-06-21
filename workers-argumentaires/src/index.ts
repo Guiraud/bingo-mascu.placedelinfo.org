@@ -8,6 +8,7 @@ interface Env {
 const ARGUMENTAIRES_KEY = "argumentaires.json";
 const STATIC_ALLOWED_ORIGINS = new Set(
   [
+    'https://bingo-mascu.placedelinfo.org',
     'https://bingo-mascu.mehdiguiraud.net',
     'https://guiraud.github.io',
     'https://guiraud.gitlab.io',
@@ -21,12 +22,7 @@ const STATIC_ALLOWED_ORIGINS = new Set(
 );
 
 const FLEXIBLE_ALLOWED_SUFFIXES = ['.gitlab.io', '.github.io', '.workers.dev'];
-
-interface ArgumentaireItem {
-  phrase: string;
-  argumentaire: string;
-  sources?: Array<Record<string, string>>;
-}
+const MAX_SOURCES = 10;
 
 interface ArgumentaireItem {
   phrase: string;
@@ -56,32 +52,7 @@ export default {
 
     const url = new URL(request.url);
 
-    if (request.method === "OPTIONS") {
-      return new Response(null, {
-        status: 204,
-        headers: corsHeaders(origin, true)
-      });
-    }
-
-    if (request.method === "POST" && url.pathname === "/api/argumentaires") {
-      try {
-        const payload = (await request.json()) as Record<string, unknown>;
-        const entry = normalizeEntry(payload);
-        if (!entry) {
-          return jsonResponse({ error: "invalid-payload" }, 400, origin);
-        }
-
-        const list = await readArgumentaires(env);
-        const filtered = list.filter(item => item.phrase !== entry.phrase);
-        filtered.push(entry);
-        filtered.sort((a, b) => a.phrase.localeCompare(b.phrase, 'fr', { sensitivity: 'base' }));
-        await env.KV_ARGUMENTAIRES.put(ARGUMENTAIRES_KEY, JSON.stringify(filtered));
-
-        return jsonResponse({ status: "ok" }, 201, origin);
-      } catch (error) {
-        return jsonResponse({ error: "invalid-json" }, 400, origin);
-      }
-
+    if (request.method === 'POST' && url.pathname === '/api/argumentaires') {
       if (env.API_SHARED_SECRET) {
         const suppliedSecret = request.headers.get('x-api-key');
         if (suppliedSecret !== env.API_SHARED_SECRET) {
@@ -118,7 +89,7 @@ export default {
       return jsonResponse({ status: 'ok' }, 201, origin);
     }
 
-    if (request.method === "GET" && url.pathname === "/api/argumentaires") {
+    if (request.method === 'GET' && url.pathname === '/api/argumentaires') {
       const list = await readArgumentaires(env);
       return new Response(JSON.stringify(list), {
         status: 200,
@@ -135,15 +106,13 @@ export default {
 
 async function readArgumentaires(env: Env): Promise<ArgumentaireItem[]> {
   const raw = await env.KV_ARGUMENTAIRES.get(ARGUMENTAIRES_KEY);
-  if (!raw) {
-    return [];
-  }
+  if (!raw) return [];
   try {
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed)) {
       return parsed
-        .map(item => normalizeEntry(item as Record<string, unknown>))
-        .filter((item): item is ArgumentaireItem => Boolean(item));
+        .map(item => normalizeStoredItem(item as Record<string, unknown>))
+        .filter((item): item is ArgumentaireItem => item !== null);
     }
   } catch (error) {
     console.warn("Invalid JSON stored in KV", error);
@@ -151,73 +120,27 @@ async function readArgumentaires(env: Env): Promise<ArgumentaireItem[]> {
   return [];
 }
 
-function normalizeEntry(value: Record<string, unknown> | null | undefined): ArgumentaireItem | null {
-  if (!value || typeof value !== "object") {
-    return null;
-  }
-  const phrase = typeof value["phrase"] === "string" ? value["phrase"].trim() : "";
-  const argumentaire = typeof value["argumentaire"] === "string" ? value["argumentaire"].trim() : "";
-  if (!phrase || !argumentaire) {
-    return null;
-  }
-  const sourcesInput = Array.isArray(value["sources"]) ? value["sources"] : [];
-  const sources = sourcesInput
-    .filter(item => item && typeof item === "object")
-    .map(item => {
-      const obj = item as Record<string, unknown>;
-      const source: Record<string, string> = {};
-      if (typeof obj.titre === "string" && obj.titre.trim()) {
-        source.titre = obj.titre.trim();
-      }
-      if (typeof obj.auteur === "string" && obj.auteur.trim()) {
-        source.auteur = obj.auteur.trim();
-      }
-      if (typeof obj.url === "string" && obj.url.trim()) {
-        source.url = obj.url.trim();
-      }
-      return source;
-    })
-    .filter(source => Object.keys(source).length > 0);
+function normalizeEntry(value: Record<string, unknown> | null | undefined, ip?: string): NormalizedEntry | null {
+  if (!value || typeof value !== 'object') return null;
 
-  return sources.length ? { phrase, argumentaire, sources } : { phrase, argumentaire };
-}
-
-function jsonResponse(body: unknown, status: number, origin: string): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: {
-      ...corsHeaders(origin),
-      "content-type": "application/json; charset=utf-8"
-    }
-  });
-}
-
-function corsHeaders(origin: string, isPreflight = false): Record<string, string> {
-  const headers: Record<string, string> = {
-    'access-control-allow-origin': allowOrigin(origin),
-    'access-control-allow-methods': 'GET, POST, OPTIONS',
-    'access-control-allow-headers': 'content-type',
-    vary: 'Origin'
-  };
-
-  if (isPreflight) {
-    headers['access-control-max-age'] = '86400';
-  }
+  const phraseRaw = typeof value['phrase'] === 'string' ? value['phrase'].trim() : '';
+  const argumentaireRaw = typeof value['argumentaire'] === 'string' ? value['argumentaire'].trim() : '';
+  if (!phraseRaw || !argumentaireRaw) return null;
 
   const phrase = escapeHtml(phraseRaw);
   const argumentaire = escapeHtml(argumentaireRaw);
   const phraseKey = phrase.toLowerCase();
 
+  const sourcesInput = Array.isArray(value['sources']) ? value['sources'] : [];
   const sources: Array<Record<string, string>> = [];
-  for (const source of sourcesRaw.slice(0, MAX_SOURCES)) {
+  for (const source of sourcesInput.slice(0, MAX_SOURCES)) {
     if (!source || typeof source !== 'object') continue;
-    const titreRaw = typeof (source as Record<string, unknown>).titre === 'string' ? (source as Record<string, unknown>).titre.trim() : '';
-    const auteurRaw = typeof (source as Record<string, unknown>).auteur === 'string' ? (source as Record<string, unknown>).auteur.trim() : '';
-    const urlRaw = typeof (source as Record<string, unknown>).url === 'string' ? (source as Record<string, unknown>).url.trim() : '';
-
+    const obj = source as Record<string, unknown>;
+    const titreRaw = typeof obj.titre === 'string' ? obj.titre.trim() : '';
+    const auteurRaw = typeof obj.auteur === 'string' ? obj.auteur.trim() : '';
+    const urlRaw = typeof obj.url === 'string' ? obj.url.trim() : '';
     if (!titreRaw && !urlRaw) continue;
     if (urlRaw && !isSafeUrl(urlRaw)) continue;
-
     const clean: Record<string, string> = {};
     if (titreRaw) clean.titre = escapeHtml(titreRaw);
     if (auteurRaw) clean.auteur = escapeHtml(auteurRaw);
@@ -232,20 +155,16 @@ function corsHeaders(origin: string, isPreflight = false): Record<string, string
       argumentaire,
       sources: sources.length ? sources : undefined,
       updated_at: new Date().toISOString(),
-      ip_hash: hashIp(ip)
+      ip_hash: ip ? hashIp(ip) : undefined
     }
   };
 }
 
 function normalizeStoredItem(value: Record<string, unknown>): ArgumentaireItem | null {
-  if (!value || typeof value !== 'object') {
-    return null;
-  }
+  if (!value || typeof value !== 'object') return null;
   const phrase = typeof value.phrase === 'string' ? value.phrase : '';
   const argumentaire = typeof value.argumentaire === 'string' ? value.argumentaire : '';
-  if (!phrase || !argumentaire) {
-    return null;
-  }
+  if (!phrase || !argumentaire) return null;
   const sources = Array.isArray(value.sources) ? value.sources.filter(isValidSourceRecord) : undefined;
   const updatedAt = typeof value.updated_at === 'string' ? value.updated_at : new Date().toISOString();
   const ipHash = typeof value.ip_hash === 'string' ? value.ip_hash : undefined;
@@ -255,10 +174,8 @@ function normalizeStoredItem(value: Record<string, unknown>): ArgumentaireItem |
 function isValidSourceRecord(entry: unknown): entry is Record<string, string> {
   if (!entry || typeof entry !== 'object') return false;
   const obj = entry as Record<string, unknown>;
-  const titreOk = typeof obj.titre === 'string';
-  const auteurOk = typeof obj.auteur === 'string';
   const urlOk = typeof obj.url === 'string' ? isSafeUrl(obj.url) : true;
-  return (titreOk || auteurOk || urlOk);
+  return (typeof obj.titre === 'string' || typeof obj.auteur === 'string' || urlOk);
 }
 
 function jsonResponse(body: unknown, status: number, origin: string): Response {
@@ -272,7 +189,7 @@ function jsonResponse(body: unknown, status: number, origin: string): Response {
 }
 
 function corsHeaders(origin: string, isPreflight: boolean): Record<string, string> {
-  const allowedOrigin = isOriginAllowed(origin) ? origin : 'null';
+  const allowedOrigin = isOriginAllowed(origin) ? origin : (origin ? 'null' : '*');
   const headers: Record<string, string> = {
     'access-control-allow-origin': allowedOrigin,
     'access-control-allow-methods': 'GET, POST, OPTIONS',
@@ -285,23 +202,54 @@ function corsHeaders(origin: string, isPreflight: boolean): Record<string, strin
   return headers;
 }
 
-function allowOrigin(origin: string): string {
-  if (!origin) {
-    return '*';
-  }
+function isOriginAllowed(origin: string): boolean {
+  if (!origin) return true;
   const normalized = origin.toLowerCase();
-  if (STATIC_ALLOWED_ORIGINS.has(normalized)) {
-    return origin;
-  }
-
+  if (STATIC_ALLOWED_ORIGINS.has(normalized)) return true;
   try {
     const url = new URL(origin);
-    if (FLEXIBLE_ALLOWED_SUFFIXES.some(suffix => url.hostname.endsWith(suffix))) {
-      return origin;
-    }
+    return FLEXIBLE_ALLOWED_SUFFIXES.some(suffix => url.hostname.endsWith(suffix));
   } catch {
-    // ignore invalid origin and fall back to wildcard
+    return false;
   }
+}
 
-  return '*';
+async function verifyTurnstile(secret: string, token: string, ip: string): Promise<boolean> {
+  try {
+    const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ secret, response: token, remoteip: ip })
+    });
+    const data = await res.json() as { success: boolean };
+    return data.success === true;
+  } catch {
+    return false;
+  }
+}
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function isSafeUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'https:' || parsed.protocol === 'http:';
+  } catch {
+    return false;
+  }
+}
+
+function hashIp(ip: string): string {
+  let hash = 0;
+  for (let i = 0; i < ip.length; i++) {
+    hash = (Math.imul(31, hash) + ip.charCodeAt(i)) | 0;
+  }
+  return Math.abs(hash).toString(16);
 }
